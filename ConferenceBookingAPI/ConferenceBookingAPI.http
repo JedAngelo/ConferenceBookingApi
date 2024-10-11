@@ -1,0 +1,6 @@
+@ConferenceBookingAPI_HostAddress = http://localhost:5053
+
+GET {{ConferenceBookingAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

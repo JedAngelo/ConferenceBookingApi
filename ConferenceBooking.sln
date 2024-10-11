@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35303.130
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceBookingAPI", "ConferenceBookingAPI\ConferenceBookingAPI.csproj", "{27A239BF-DD33-4A1E-80CC-1CA2436C896A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{27A239BF-DD33-4A1E-80CC-1CA2436C896A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27A239BF-DD33-4A1E-80CC-1CA2436C896A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27A239BF-DD33-4A1E-80CC-1CA2436C896A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27A239BF-DD33-4A1E-80CC-1CA2436C896A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {65A652BF-AD9D-4B71-BB3A-999CC73F4129}
+	EndGlobalSection
+EndGlobal

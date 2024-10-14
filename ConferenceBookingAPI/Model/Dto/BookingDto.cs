@@ -12,7 +12,7 @@ namespace ConferenceBookingAPI.Models.Dto
 
         public DateTime? BookingEnd { get; set; }
 
-        public string? Organizer { get; set; }
+        public string? Organizer { get; set; }  
 
         public string? Department { get; set; }
 

@@ -11,12 +11,22 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// for cors policy
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigin",
+        builder => builder.WithOrigins("http://localhost:4200") // Replace with your frontend URL
+                          .AllowAnyHeader()
+                          .AllowAnyMethod());
+});
 
 builder.Services.AddDbContext<ConferenceBookingContext>(option => option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultCon")));
 builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<IConferenceService, ConferenceService>();
 
 var app = builder.Build();
+
+app.UseCors("AllowSpecificOrigin");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

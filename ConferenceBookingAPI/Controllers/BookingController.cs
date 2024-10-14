@@ -41,14 +41,14 @@ namespace ConferenceBookingAPI.Controllers
             return Ok(result);
         }
 
-        [HttpGet("GetBookingByID")]
+        [HttpGet("GetBookingByBookingID/{ID}")]
         public async Task<ActionResult<ApiResponse<BookingDto>>> GetBookingById(long ID)
         {
             var result = await _bookingService.GetBookingByBookingId(ID);
             return Ok(result);
         }
 
-        [HttpGet("GetBookingByConferenceID")]
+        [HttpGet("GetBookingByConferenceID/{ID}")]
         public async Task<ActionResult<List<ApiResponse<BookingDto>>>> GetBookingByConferenceId(long ID)
         {
             var result = await _bookingService.GetBookingByConferenceId(ID);

@@ -13,7 +13,8 @@ builder.Services.AddSwaggerGen();
 
 
 builder.Services.AddDbContext<ConferenceBookingContext>(option => option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultCon")));
-builder.Services.AddScoped<IConferenceBookingService, ConferenceBookingService>();
+builder.Services.AddScoped<IBookingService, BookingService>();
+builder.Services.AddScoped<IConferenceService, ConferenceService>();
 
 var app = builder.Build();
 

@@ -1,159 +1,17 @@
 ﻿using ConferenceBookingAPI.Model;
-using ConferenceBookingAPI.Model.Dto;
 using ConferenceBookingAPI.Models.Dto;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client;
 
 namespace ConferenceBookingAPI.Services
 {
-    public class ConferenceBookingService : IConferenceBookingService
+    public class BookingService : IBookingService
     {
         private readonly ConferenceBookingContext _context;
 
-        public ConferenceBookingService(ConferenceBookingContext context)
+        public BookingService(ConferenceBookingContext context)
         {
             _context = context;
         }
-
-        #region Conference Services
-
-        public async Task<ApiResponse<string>> AddOrUpdateConference(ConferenceDto dto)
-        {
-            try
-            {
-
-                if (dto.ConferenceId == null)
-                {
-                    var _conference = new Conference
-                    {
-                        ConferenceId = 0,
-                        ConferenceName = dto.ConferenceName,
-                        Capacity = dto.Capacity,
-                        IsActive = dto.IsActive,
-                    };
-
-                    await _context.Conferences.AddAsync(_conference);
-                    await _context.SaveChangesAsync();
-
-                    return new ApiResponse<string>
-                    {
-                        Data = "Successfully added conference.",
-                        ErrorMessage = "",
-                        IsSuccess = true
-                    };
-
-                }
-                else
-                {
-                    var _apiMessage = "";
-                    var _updateConference = await _context.Conferences.FirstOrDefaultAsync(c => c.ConferenceId == dto.ConferenceId);
-
-                    if (_updateConference != null)
-                    {
-                        _updateConference.ConferenceName = dto.ConferenceName;
-                        _updateConference.Capacity = dto.Capacity;
-                        _updateConference.IsActive = dto.IsActive;
-                        _context.Conferences.Update(_updateConference);
-                        await _context.SaveChangesAsync();
-                        _apiMessage = "Successfully update conference.";
-                    }
-                    else
-                    {
-                        _apiMessage = "Conference does not exist or has been deleted";
-                    }
-
-
-                    return new ApiResponse<string>
-                    {
-                        Data = _apiMessage,
-                        ErrorMessage = "",
-                        IsSuccess = true
-                    };
-                }
-
-
-
-            }
-            catch (Exception ex)
-            {
-
-                return new ApiResponse<string>
-                {
-                    Data = "",
-                    ErrorMessage = $"Error adding a conference: {ex.Message}  \r\n Inner Exception: {ex.InnerException.Message}",
-                    IsSuccess = true
-                };
-            }
-        }
-
-        public async Task<ApiResponse<string>> DeleteConference(long ID)
-        {
-            try
-            {
-                var _apiMessage = "";
-                var _removeConference = await _context.Conferences.FirstOrDefaultAsync(c => c.ConferenceId == ID);
-
-                if (_removeConference != null)
-                {
-                    _context.Conferences.Remove(_removeConference);
-                    await _context.SaveChangesAsync();
-
-                    _apiMessage = "Conference successfully deleted";
-                }
-                else
-                {
-                    _apiMessage = "Conference does not exist, or has been deleted";
-                }
-
-                return new ApiResponse<string>
-                {
-                    Data = _apiMessage,
-                    ErrorMessage = "",
-                    IsSuccess = true
-                };
-
-            }
-            catch (Exception ex)
-            {
-
-                throw;
-            }
-        }
-
-        public async Task<ApiResponse<List<ConferenceDto>>> GetAllConference()
-        {
-            try
-            {
-                var _conferences = await _context.Conferences.Select(c => new ConferenceDto
-                {
-                    ConferenceId = c.ConferenceId,
-                    ConferenceName = c.ConferenceName,
-                    Capacity = c.Capacity,
-                    IsActive = c.IsActive,
-                }).ToListAsync();
-
-                return new ApiResponse<List<ConferenceDto>>
-                {
-                    Data = _conferences,
-                    ErrorMessage = "",
-                    IsSuccess = true
-                };
-
-            }
-            catch (Exception ex)
-            {
-
-                return new ApiResponse<List<ConferenceDto>>
-                {
-                    Data = [],
-                    ErrorMessage = $"Error retrieving conference data: {ex.Message}",
-                    IsSuccess = false
-                };
-            }
-        }
-
-        #endregion
-
 
         #region Booking Services
 
@@ -354,6 +212,120 @@ namespace ConferenceBookingAPI.Services
                 };
             }
         }
+
+        public async Task<ApiResponse<BookingDto>> GetBookingByBookingId(long ID)
+        {
+            try
+            {
+                var _booking = await (from b in _context.Bookings
+                                      where b.BookingId == ID
+                                      select new BookingDto
+                                      {
+                                          BookingId = b.BookingId,
+                                          ApprovedBy = b.ApprovedBy,
+
+                                          //Organizer info
+                                          Organizer = b.Organizer,
+                                          ExpectedAttendess = b.ExpectedAttendess,
+                                          Department = b.Department,
+                                          ContactNumber = b.ContactNumber,
+                                          EmailAddress = b.EmailAddress,
+
+                                          //Booking Info
+                                          ConferenceId = b.ConferenceId,
+                                          BookingStart = b.BookingStart,
+                                          BookingEnd = b.BookingEnd,
+                                          Description = b.Description,
+                                          Purpose = b.Purpose,
+                                          Status = b.Status,
+                                      }).FirstOrDefaultAsync();
+                if (_booking == null)
+                {
+                    return new ApiResponse<BookingDto>
+                    {
+                        Data = null,
+                        ErrorMessage = "No Bookings found by that ID",
+                        IsSuccess = false
+                    };
+                }
+
+
+                return new ApiResponse<BookingDto>
+                {
+                    Data = _booking,
+                    ErrorMessage = "",
+                    IsSuccess = true
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<BookingDto>
+                {
+                    Data = null,
+                    ErrorMessage = $"Error retrieving booking: {ex.Message} ",
+                    IsSuccess = false
+                };
+
+            }
+        }
+        
+        public async Task<ApiResponse<List<BookingDto>>> GetBookingByConferenceId(long ID)
+        {
+            try
+            {
+                var _booking = await (from b in _context.Bookings
+                                      where b.ConferenceId == ID
+                                      select new BookingDto
+                                      {
+                                          BookingId = b.BookingId,
+                                          ApprovedBy = b.ApprovedBy,
+
+                                          //Organizer info
+                                          Organizer = b.Organizer,
+                                          ExpectedAttendess = b.ExpectedAttendess,
+                                          Department = b.Department,
+                                          ContactNumber = b.ContactNumber,
+                                          EmailAddress = b.EmailAddress,
+
+                                          //Booking Info
+                                          ConferenceId = b.ConferenceId,
+                                          BookingStart = b.BookingStart,
+                                          BookingEnd = b.BookingEnd,
+                                          Description = b.Description,
+                                          Purpose = b.Purpose,
+                                          Status = b.Status,
+                                      }).ToListAsync();
+                if (_booking == null)
+                {
+                    return new ApiResponse<List<BookingDto>>
+                    {
+                        Data = null,
+                        ErrorMessage = "No Bookings found by that ID",
+                        IsSuccess = false
+                    };
+                }
+
+
+                return new ApiResponse<List<BookingDto>>
+                {
+                    Data = _booking,
+                    ErrorMessage = "",
+                    IsSuccess = true
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<List<BookingDto>>
+                {
+                    Data = [],
+                    ErrorMessage = $"Error retrieving booking: {ex.Message} ",
+                    IsSuccess = false
+                };
+
+            }
+        }
+
+
 
 
         #endregion

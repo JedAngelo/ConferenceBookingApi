@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Identity.Client;
+using System;
 using System.Collections.Generic;
 
 namespace ConferenceBookingAPI.Model;
@@ -9,9 +10,16 @@ public partial class Booking
 
     public string ApprovedBy { get; set; } = null!;
 
-    public DateTime? BookingStart { get; set; }
+    //public DateTime? BookingStart { get; set; }
 
-    public DateTime? BookingEnd { get; set; }
+    //public DateTime? BookingEnd { get; set; }
+
+
+    public DateOnly BookedDate { get; set; }
+
+    public TimeOnly BookingStart { get; set; }
+
+    public TimeOnly BookingEnd { get; set; }
 
     public string? Organizer {  get; set; }
 

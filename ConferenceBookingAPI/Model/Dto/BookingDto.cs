@@ -8,9 +8,11 @@ namespace ConferenceBookingAPI.Models.Dto
 
         public string ApprovedBy { get; set; } = null!;
 
-        public DateTime? BookingStart { get; set; }
+        public DateOnly BookedDate { get; set; }
 
-        public DateTime? BookingEnd { get; set; }
+        public TimeOnly BookingStart { get; set; }
+
+        public TimeOnly BookingEnd { get; set; }
 
         public string? Organizer { get; set; }  
 

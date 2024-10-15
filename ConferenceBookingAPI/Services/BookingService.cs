@@ -47,6 +47,7 @@ namespace ConferenceBookingAPI.Services
 
                         //Booking information
                         ConferenceId = dto.ConferenceId,
+                        BookedDate = dto.BookedDate,
                         BookingStart = dto.BookingStart,
                         BookingEnd = dto.BookingEnd,
                         Description = dto.Description,
@@ -96,6 +97,7 @@ namespace ConferenceBookingAPI.Services
 
                         //Updated booking info
                         _updateBooking.ConferenceId = dto.ConferenceId;
+                        _updateBooking.BookedDate = dto.BookedDate;
                         _updateBooking.BookingStart = dto.BookingStart;
                         _updateBooking.BookingEnd = dto.BookingEnd;
                         _updateBooking.Description = dto.Description;
@@ -187,6 +189,7 @@ namespace ConferenceBookingAPI.Services
 
                     //Booking Info
                     ConferenceId = b.ConferenceId,
+                    BookedDate = b.BookedDate,
                     BookingStart = b.BookingStart,
                     BookingEnd = b.BookingEnd,
                     Description = b.Description,
@@ -233,6 +236,7 @@ namespace ConferenceBookingAPI.Services
 
                                           //Booking Info
                                           ConferenceId = b.ConferenceId,
+                                          BookedDate = b.BookedDate,
                                           BookingStart = b.BookingStart,
                                           BookingEnd = b.BookingEnd,
                                           Description = b.Description,
@@ -289,6 +293,7 @@ namespace ConferenceBookingAPI.Services
 
                                           //Booking Info
                                           ConferenceId = b.ConferenceId,
+                                          BookedDate = b.BookedDate,
                                           BookingStart = b.BookingStart,
                                           BookingEnd = b.BookingEnd,
                                           Description = b.Description,

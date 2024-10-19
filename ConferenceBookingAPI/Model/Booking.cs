@@ -1,6 +1,7 @@
 ﻿using Microsoft.Identity.Client;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace ConferenceBookingAPI.Model;
 
@@ -29,13 +30,14 @@ public partial class Booking
 
     public string? EmailAddress { get; set; }
 
-    public int? ExpectedAttendess { get; set; }
+    public int? ExpectedAttendees { get; set; }
 
     public string Purpose { get; set; } = null!;
 
     public string? Description { get; set; }
 
-    public string? Status { get; set; }
+    [DefaultValue("pending")]
+    public string? Status { get; set; } = "pending";
 
     public int ConferenceId { get; set; }
 

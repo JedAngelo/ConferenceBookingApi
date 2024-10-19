@@ -39,7 +39,7 @@ namespace ConferenceBookingAPI.Services
 
                         //Organizer information
                         Organizer = dto.Organizer,
-                        ExpectedAttendess = dto.ExpectedAttendess,
+                        ExpectedAttendees = dto.ExpectedAttendees,
                         ContactNumber = dto.ContactNumber,
                         Department = dto.Department,
                         EmailAddress = dto.EmailAddress,
@@ -52,7 +52,7 @@ namespace ConferenceBookingAPI.Services
                         BookingEnd = dto.BookingEnd,
                         Description = dto.Description,
                         Purpose = dto.Purpose,
-                        Status = dto.Status,
+                        Status = "pending",
                     };
 
                     await _context.Bookings.AddAsync(_booking);
@@ -90,7 +90,7 @@ namespace ConferenceBookingAPI.Services
 
                         //Updated organizer informatnion
                         _updateBooking.Organizer = dto.Organizer;
-                        _updateBooking.ExpectedAttendess = dto.ExpectedAttendess;
+                        _updateBooking.ExpectedAttendees = dto.ExpectedAttendees;
                         _updateBooking.ContactNumber = dto.ContactNumber;
                         _updateBooking.Department = dto.Department;
                         _updateBooking.EmailAddress = dto.EmailAddress;
@@ -182,7 +182,7 @@ namespace ConferenceBookingAPI.Services
 
                     //Organizer info
                     Organizer = b.Organizer,
-                    ExpectedAttendess = b.ExpectedAttendess,
+                    ExpectedAttendees = b.ExpectedAttendees,
                     Department = b.Department,
                     ContactNumber = b.ContactNumber,
                     EmailAddress = b.EmailAddress,
@@ -229,7 +229,7 @@ namespace ConferenceBookingAPI.Services
 
                                           //Organizer info
                                           Organizer = b.Organizer,
-                                          ExpectedAttendess = b.ExpectedAttendess,
+                                          ExpectedAttendees = b.ExpectedAttendees,
                                           Department = b.Department,
                                           ContactNumber = b.ContactNumber,
                                           EmailAddress = b.EmailAddress,
@@ -286,7 +286,7 @@ namespace ConferenceBookingAPI.Services
 
                                           //Organizer info
                                           Organizer = b.Organizer,
-                                          ExpectedAttendess = b.ExpectedAttendess,
+                                          ExpectedAttendees = b.ExpectedAttendees,
                                           Department = b.Department,
                                           ContactNumber = b.ContactNumber,
                                           EmailAddress = b.EmailAddress,

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ConferenceBookingAPI.Migrations
 {
     [DbContext(typeof(ConferenceBookingContext))]
-    [Migration("20241011054807_fix identity column")]
-    partial class fixidentitycolumn
+    [Migration("20241017025633_fixed default value")]
+    partial class fixeddefaultvalue
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,21 +27,24 @@ namespace ConferenceBookingAPI.Migrations
 
             modelBuilder.Entity("ConferenceBookingAPI.Model.Booking", b =>
                 {
-                    b.Property<int?>("BookingId")
+                    b.Property<int>("BookingId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int?>("BookingId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BookingId"));
 
                     b.Property<string>("ApprovedBy")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("BookingEnd")
-                        .HasColumnType("datetime2");
+                    b.Property<DateOnly>("BookedDate")
+                        .HasColumnType("date");
 
-                    b.Property<DateTime?>("BookingStart")
-                        .HasColumnType("datetime2");
+                    b.Property<TimeOnly>("BookingEnd")
+                        .HasColumnType("time");
+
+                    b.Property<TimeOnly>("BookingStart")
+                        .HasColumnType("time");
 
                     b.Property<int>("ConferenceId")
                         .HasColumnType("int");
@@ -58,7 +61,7 @@ namespace ConferenceBookingAPI.Migrations
                     b.Property<string>("EmailAddress")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("ExpectedAttendess")
+                    b.Property<int?>("ExpectedAttendees")
                         .HasColumnType("int");
 
                     b.Property<string>("Organizer")

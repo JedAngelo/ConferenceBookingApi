@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ConferenceBookingAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class addedinfoaboutorganizer : Migration
+    public partial class initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -18,7 +18,7 @@ namespace ConferenceBookingAPI.Migrations
                     ConferenceId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ConferenceName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Capacity = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Capacity = table.Column<int>(type: "int", nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: true)
                 },
                 constraints: table =>
@@ -33,13 +33,14 @@ namespace ConferenceBookingAPI.Migrations
                     BookingId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ApprovedBy = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    BookingStart = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    BookingEnd = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    BookedDate = table.Column<DateOnly>(type: "date", nullable: false),
+                    BookingStart = table.Column<TimeOnly>(type: "time", nullable: false),
+                    BookingEnd = table.Column<TimeOnly>(type: "time", nullable: false),
                     Organizer = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Department = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ContactNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     EmailAddress = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ExpectedAttendess = table.Column<int>(type: "int", nullable: true),
+                    ExpectedAttendees = table.Column<int>(type: "int", nullable: true),
                     Purpose = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: true),

@@ -58,7 +58,7 @@ namespace ConferenceBookingAPI.Migrations
                     b.Property<string>("EmailAddress")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("ExpectedAttendess")
+                    b.Property<int?>("ExpectedAttendees")
                         .HasColumnType("int");
 
                     b.Property<string>("Organizer")

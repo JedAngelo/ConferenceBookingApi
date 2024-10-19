@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ConferenceBookingAPI.Migrations
 {
     [DbContext(typeof(ConferenceBookingContext))]
-    [Migration("20241011040409_added info about organizer")]
-    partial class addedinfoaboutorganizer
+    [Migration("20241017024504_initial")]
+    partial class initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,21 +27,24 @@ namespace ConferenceBookingAPI.Migrations
 
             modelBuilder.Entity("ConferenceBookingAPI.Model.Booking", b =>
                 {
-                    b.Property<int?>("BookingId")
+                    b.Property<int>("BookingId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int?>("BookingId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BookingId"));
 
                     b.Property<string>("ApprovedBy")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("BookingEnd")
-                        .HasColumnType("datetime2");
+                    b.Property<DateOnly>("BookedDate")
+                        .HasColumnType("date");
 
-                    b.Property<DateTime?>("BookingStart")
-                        .HasColumnType("datetime2");
+                    b.Property<TimeOnly>("BookingEnd")
+                        .HasColumnType("time");
+
+                    b.Property<TimeOnly>("BookingStart")
+                        .HasColumnType("time");
 
                     b.Property<int>("ConferenceId")
                         .HasColumnType("int");
@@ -58,7 +61,7 @@ namespace ConferenceBookingAPI.Migrations
                     b.Property<string>("EmailAddress")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("ExpectedAttendess")
+                    b.Property<int?>("ExpectedAttendees")
                         .HasColumnType("int");
 
                     b.Property<string>("Organizer")
@@ -80,14 +83,14 @@ namespace ConferenceBookingAPI.Migrations
 
             modelBuilder.Entity("ConferenceBookingAPI.Model.Conference", b =>
                 {
-                    b.Property<int?>("ConferenceId")
+                    b.Property<int>("ConferenceId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int?>("ConferenceId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ConferenceId"));
 
-                    b.Property<string>("Capacity")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("Capacity")
+                        .HasColumnType("int");
 
                     b.Property<string>("ConferenceName")
                         .HasColumnType("nvarchar(max)");

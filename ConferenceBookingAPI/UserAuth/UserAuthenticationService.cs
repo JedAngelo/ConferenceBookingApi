@@ -1,6 +1,7 @@
 ﻿using ConferenceBookingAPI.Model.Dto.UserAuthDto;
 using ConferenceBookingAPI.Models.Dto;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -109,6 +110,10 @@ namespace ConferenceBookingAPI.UserAuth
                 };
             }
 
+            if (!await _roleManager.RoleExistsAsync(UserRoles.UserRole))
+            {
+                await _roleManager.CreateAsync(new IdentityRole(UserRoles.UserRole));
+            }
             if (await _roleManager.RoleExistsAsync(UserRoles.UserRole))
             {
                 await _userManager.AddToRoleAsync(_userData, UserRoles.UserRole);
@@ -139,7 +144,7 @@ namespace ConferenceBookingAPI.UserAuth
             var _authClaims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, _checkUser.Id),
-                new Claim(ClaimTypes.Name, _checkUser.UserName),
+                new Claim(ClaimTypes.Name, _checkUser.UserName!),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
@@ -152,7 +157,7 @@ namespace ConferenceBookingAPI.UserAuth
             var _token = new JwtSecurityToken(
                 issuer: _configuration["JWT:ValidIssuer"],
                 audience: _configuration["JWT:ValidAudience"],
-                expires: DateTime.Now.AddMinutes(30),
+                expires: DateTime.Now.AddMinutes(60),
                 claims: _authClaims,
                 signingCredentials: new SigningCredentials(_authSigningKey, SecurityAlgorithms.HmacSha256)
             );
@@ -163,7 +168,7 @@ namespace ConferenceBookingAPI.UserAuth
             var userInfo = new UserLoginDto
             {
                 userID = _checkUser.Id,
-                UserName = _checkUser.UserName,
+                UserName = _checkUser.UserName!,
                 Token = new JwtSecurityTokenHandler().WriteToken(_token),
                 UserToken = _newRefreshToken,
                 UserRole = roles
@@ -176,5 +181,51 @@ namespace ConferenceBookingAPI.UserAuth
                 ErrorMessage = ""
             };
         }
+
+        public async Task<ApiResponse<List<AdminUsersDto>>> GetAdminsAsync()
+        {
+            try
+            {
+                // Get all users
+                var allUsers = await _userManager.Users.ToListAsync();
+                var adminUsers = new List<AdminUsersDto>();
+
+                foreach (var user in allUsers)
+                {
+                    // Check if the user has the Admin role
+                    if (await _userManager.IsInRoleAsync(user, UserRoles.AdminRole))
+                    {
+                        var roles = await _userManager.GetRolesAsync(user);
+                        var userLoginDto = new AdminUsersDto
+                        {
+                            UserId = user.Id,
+                            UserName = user.UserName!,
+                        };
+
+                        adminUsers.Add(userLoginDto);
+                    }
+                }
+
+                return new ApiResponse<List<AdminUsersDto>>
+                {
+                    Data = adminUsers,
+                    IsSuccess = true,
+                    ErrorMessage = ""
+                };
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (optional)
+                return new ApiResponse<List<AdminUsersDto>>
+                {
+                    Data = null,
+                    IsSuccess = false,
+                    ErrorMessage = ex.Message // You can customize the error message
+                };
+            }
+        }
+
+
+
     }
 }

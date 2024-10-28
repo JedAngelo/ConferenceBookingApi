@@ -1,15 +1,17 @@
 ﻿using ConferenceBookingAPI.Model;
 using ConferenceBookingAPI.Model.Dto;
+using ConferenceBookingAPI.Model.Dto.UserAuthDto;
 using ConferenceBookingAPI.Models.Dto;
+using ConferenceBookingAPI.UserAuth;
 using Microsoft.EntityFrameworkCore;
 
 namespace ConferenceBookingAPI.Services
 {
     public class ConferenceService : IConferenceService
     {
-        private readonly ConferenceBookingContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public ConferenceService(ConferenceBookingContext context)
+        public ConferenceService(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -26,11 +28,26 @@ namespace ConferenceBookingAPI.Services
                 {
                     var _conference = new Conference
                     {
-                        ConferenceId = 0,
                         ConferenceName = dto.ConferenceName,
                         Capacity = dto.Capacity,
                         IsActive = dto.IsActive,
+                        ApplicationUser = new List<ApplicationUser>()
                     };
+                                                      
+
+
+                    if(dto.AdminUsers != null)
+                    {
+                        foreach(var users in dto.AdminUsers)
+                        {
+                            var userExist = await _context.ApplicationUsers.FirstOrDefaultAsync(x => x.Id == users.UserId);
+                            if (userExist != null)
+                            {
+                                userExist.ConferenceId = dto.ConferenceId;
+                                _conference.ApplicationUser.Add(userExist);
+                            }
+                        }
+                    }
 
                     await _context.Conferences.AddAsync(_conference);
                     await _context.SaveChangesAsync();
@@ -124,12 +141,17 @@ namespace ConferenceBookingAPI.Services
         {
             try
             {
-                var _conferences = await _context.Conferences.Select(c => new ConferenceDto
+                var _conferences = await _context.Conferences.Include(a => a.ApplicationUser).Select(c => new ConferenceDto
                 {
                     ConferenceId = c.ConferenceId,
                     ConferenceName = c.ConferenceName,
                     Capacity = c.Capacity,
                     IsActive = c.IsActive,
+                    AdminUsers = c.ApplicationUser!.Select(x => new AdminUsersDto
+                    {
+                        UserId = x.Id,
+                        UserName = x.UserName!
+                    }).ToList()
                 }).ToListAsync();
 
                 return new ApiResponse<List<ConferenceDto>>
@@ -152,7 +174,42 @@ namespace ConferenceBookingAPI.Services
             }
         }
 
+        public async Task<ApiResponse<ConferenceDto>> GetConferenceById(int ID)
+        {
+            try
+            {
+                var _conferences = await _context.Conferences.Where(x => x.ConferenceId == ID).Include(a => a.ApplicationUser).Select(c => new ConferenceDto
+                {
+                    ConferenceId = c.ConferenceId,
+                    ConferenceName = c.ConferenceName,
+                    Capacity = c.Capacity,
+                    IsActive = c.IsActive,
+                    AdminUsers = c.ApplicationUser!.Select(x => new AdminUsersDto
+                    {
+                        UserId = x.Id,
+                        UserName = x.UserName!
+                    }).ToList()
+                }).FirstOrDefaultAsync();
 
+                return new ApiResponse<ConferenceDto>
+                {
+                    Data = _conferences,
+                    ErrorMessage = "",
+                    IsSuccess = true
+                };
+
+            }
+            catch (Exception ex)
+            {
+
+                return new ApiResponse<ConferenceDto>
+                {
+                    Data = new ConferenceDto(),
+                    ErrorMessage = $"Error retrieving conference data: {ex.Message}",
+                    IsSuccess = false
+                };
+            }
+        }
         #endregion
     }
 }

@@ -17,7 +17,7 @@ namespace ConferenceBookingAPI.Controllers
         {
             _authService = authService;
         }
-
+        //[Authorize(Roles = UserRoles.AdminRole)]
         [HttpPost("RegisterAdmin")]
         public async Task<ActionResult<ApiResponse<string>>> RegisterAdmin([FromBody] RegisterModelDto param)
         {
@@ -25,6 +25,7 @@ namespace ConferenceBookingAPI.Controllers
             return Ok(result);
         }
 
+        [AllowAnonymous]
         [HttpPost("RegisterUser")]
         public async Task<IActionResult> RegisterUser([FromBody] RegisterModelDto param)
         {
@@ -37,6 +38,14 @@ namespace ConferenceBookingAPI.Controllers
         public async Task<ActionResult<ApiResponse<UserLoginDto>>> Login([FromBody] LoginModelDto param)
         {
             var result = await _authService.LoginAsync(param);
+            return Ok(result);
+        }
+
+        //[Authorize(Roles = UserRoles.AdminRole)]
+        [HttpGet("GetAdmins")]
+        public async Task<ActionResult<ApiResponse<List<AdminUsersDto>>>> GetAdminsAsync()
+        {
+            var result = await _authService.GetAdminsAsync();
             return Ok(result);
         }
     }

@@ -1,5 +1,7 @@
-﻿using ConferenceBookingAPI.Models;
+﻿using ConferenceBookingAPI.Model.Dto.UserAuthDto;
+using ConferenceBookingAPI.Models;
 using ConferenceBookingAPI.Models.Dto;
+using ConferenceBookingAPI.UserAuth;
 
 namespace ConferenceBookingAPI.Model.Dto
 {
@@ -13,6 +15,8 @@ namespace ConferenceBookingAPI.Model.Dto
 
         public bool? IsActive { get; set; }
 
-        public virtual ICollection<BookingDto> BookingDtos { get; set; } = new List<BookingDto>();
+        public virtual ICollection<Booking> Bookings { get; set; } = new List<Booking>();
+
+        public virtual List<AdminUsersDto>? AdminUsers { get; set; } = new List<AdminUsersDto>();
     }
 }

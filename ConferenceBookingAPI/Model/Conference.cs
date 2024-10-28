@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ConferenceBookingAPI.UserAuth;
+using System;
 using System.Collections.Generic;
 
 namespace ConferenceBookingAPI.Model;
@@ -14,4 +15,6 @@ public partial class Conference
     public bool? IsActive { get; set; }
 
     public virtual ICollection<Booking> Bookings { get; set; } = new List<Booking>();
+
+    public virtual ICollection<ApplicationUser>? ApplicationUser { get; set; } = new List<ApplicationUser>();
 }

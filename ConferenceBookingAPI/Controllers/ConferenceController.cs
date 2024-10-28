@@ -1,6 +1,8 @@
 ﻿using ConferenceBookingAPI.Model.Dto;
+using ConferenceBookingAPI.Model.Dto.UserAuthDto;
 using ConferenceBookingAPI.Models.Dto;
 using ConferenceBookingAPI.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -31,11 +33,18 @@ namespace ConferenceAPI.Controllers
             var result = await _conferenceService.DeleteConference(ID);
             return Ok(result);
         }
-
+        //[Authorize(Roles = UserRoles.AdminRole)]
         [HttpGet("GetAllConference")]
         public async Task<ActionResult<ApiResponse<List<ConferenceDto>>>> GetAllConference()
         {
             var result = await _conferenceService.GetAllConference();
+            return Ok(result);
+        }
+
+        [HttpGet("GetConferenceById/{ID}")]
+        public async Task<ActionResult<ApiResponse<ConferenceDto>>> GetConferenceById(int ID)
+        {
+            var result = await _conferenceService.GetConferenceById(ID);
             return Ok(result);
         }
         #endregion

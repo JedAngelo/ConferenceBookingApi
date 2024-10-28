@@ -8,5 +8,7 @@ namespace ConferenceBookingAPI.Services
         Task<ApiResponse<string>> AddOrUpdateConference(ConferenceDto dto);
         Task<ApiResponse<string>> DeleteConference(long ID);
         Task<ApiResponse<List<ConferenceDto>>> GetAllConference();
+        Task<ApiResponse<ConferenceDto>> GetConferenceById(int ID);
+
     }
 }

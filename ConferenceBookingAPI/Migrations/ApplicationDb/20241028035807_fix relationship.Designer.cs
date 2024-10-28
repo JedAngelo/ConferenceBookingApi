@@ -4,6 +4,7 @@ using ConferenceBookingAPI.UserAuth;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ConferenceBookingAPI.Migrations.ApplicationDb
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241028035807_fix relationship")]
+    partial class fixrelationship
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -75,7 +78,7 @@ namespace ConferenceBookingAPI.Migrations.ApplicationDb
 
                     b.HasIndex("ConferenceId");
 
-                    b.ToTable("Bookings");
+                    b.ToTable("Booking");
                 });
 
             modelBuilder.Entity("ConferenceBookingAPI.Model.Conference", b =>
@@ -92,12 +95,40 @@ namespace ConferenceBookingAPI.Migrations.ApplicationDb
                     b.Property<string>("ConferenceName")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("InchargeUserId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<bool?>("IsActive")
                         .HasColumnType("bit");
 
                     b.HasKey("ConferenceId");
 
+                    b.HasIndex("InchargeUserId");
+
                     b.ToTable("Conferences");
+                });
+
+            modelBuilder.Entity("ConferenceBookingAPI.Model.ConferenceUser", b =>
+                {
+                    b.Property<int>("ConferenceUserId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ConferenceUserId"));
+
+                    b.Property<int?>("ConferenceId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("ConferenceUserId");
+
+                    b.HasIndex("ConferenceId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ConferenceUsers");
                 });
 
             modelBuilder.Entity("ConferenceBookingAPI.UserAuth.ApplicationUser", b =>
@@ -112,9 +143,6 @@ namespace ConferenceBookingAPI.Migrations.ApplicationDb
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("ConferenceId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -123,9 +151,11 @@ namespace ConferenceBookingAPI.Migrations.ApplicationDb
                         .HasColumnType("bit");
 
                     b.Property<string>("FirstName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("LastName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("LockoutEnabled")
@@ -162,8 +192,6 @@ namespace ConferenceBookingAPI.Migrations.ApplicationDb
                         .HasColumnType("nvarchar(256)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ConferenceId");
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
@@ -320,14 +348,29 @@ namespace ConferenceBookingAPI.Migrations.ApplicationDb
                     b.Navigation("Conference");
                 });
 
-            modelBuilder.Entity("ConferenceBookingAPI.UserAuth.ApplicationUser", b =>
+            modelBuilder.Entity("ConferenceBookingAPI.Model.Conference", b =>
                 {
-                    b.HasOne("ConferenceBookingAPI.Model.Conference", "Conference")
-                        .WithMany("ApplicationUser")
-                        .HasForeignKey("ConferenceId")
+                    b.HasOne("ConferenceBookingAPI.UserAuth.ApplicationUser", "InchargeUser")
+                        .WithMany()
+                        .HasForeignKey("InchargeUserId")
                         .OnDelete(DeleteBehavior.SetNull);
 
+                    b.Navigation("InchargeUser");
+                });
+
+            modelBuilder.Entity("ConferenceBookingAPI.Model.ConferenceUser", b =>
+                {
+                    b.HasOne("ConferenceBookingAPI.Model.Conference", "Conference")
+                        .WithMany("ConferenceUsers")
+                        .HasForeignKey("ConferenceId");
+
+                    b.HasOne("ConferenceBookingAPI.UserAuth.ApplicationUser", "User")
+                        .WithMany("ConferenceUsers")
+                        .HasForeignKey("UserId");
+
                     b.Navigation("Conference");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -383,9 +426,14 @@ namespace ConferenceBookingAPI.Migrations.ApplicationDb
 
             modelBuilder.Entity("ConferenceBookingAPI.Model.Conference", b =>
                 {
-                    b.Navigation("ApplicationUser");
-
                     b.Navigation("Bookings");
+
+                    b.Navigation("ConferenceUsers");
+                });
+
+            modelBuilder.Entity("ConferenceBookingAPI.UserAuth.ApplicationUser", b =>
+                {
+                    b.Navigation("ConferenceUsers");
                 });
 #pragma warning restore 612, 618
         }

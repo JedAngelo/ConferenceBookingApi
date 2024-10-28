@@ -4,6 +4,7 @@ using ConferenceBookingAPI.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ConferenceBookingAPI.Migrations
 {
     [DbContext(typeof(ConferenceBookingContext))]
-    partial class ConferenceBookingContextModelSnapshot : ModelSnapshot
+    [Migration("20241028025934_added conference inchargeuser")]
+    partial class addedconferenceinchargeuser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -86,46 +89,26 @@ namespace ConferenceBookingAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ConferenceId"));
 
+                    b.Property<string>("ApplicationUserId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<int?>("Capacity")
                         .HasColumnType("int");
 
                     b.Property<string>("ConferenceName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("InchargeUserId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid?>("InchargeUserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<bool?>("IsActive")
                         .HasColumnType("bit");
 
                     b.HasKey("ConferenceId");
 
-                    b.HasIndex("InchargeUserId");
+                    b.HasIndex("ApplicationUserId");
 
                     b.ToTable("Conferences");
-                });
-
-            modelBuilder.Entity("ConferenceBookingAPI.Model.ConferenceUser", b =>
-                {
-                    b.Property<int>("ConferenceUserId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ConferenceUserId"));
-
-                    b.Property<int?>("ConferenceId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("ConferenceUserId");
-
-                    b.HasIndex("ConferenceId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("ConferenceUser");
                 });
 
             modelBuilder.Entity("ConferenceBookingAPI.UserAuth.ApplicationUser", b =>
@@ -201,38 +184,16 @@ namespace ConferenceBookingAPI.Migrations
 
             modelBuilder.Entity("ConferenceBookingAPI.Model.Conference", b =>
                 {
-                    b.HasOne("ConferenceBookingAPI.UserAuth.ApplicationUser", "InchargeUser")
+                    b.HasOne("ConferenceBookingAPI.UserAuth.ApplicationUser", "ApplicationUser")
                         .WithMany()
-                        .HasForeignKey("InchargeUserId");
+                        .HasForeignKey("ApplicationUserId");
 
-                    b.Navigation("InchargeUser");
-                });
-
-            modelBuilder.Entity("ConferenceBookingAPI.Model.ConferenceUser", b =>
-                {
-                    b.HasOne("ConferenceBookingAPI.Model.Conference", "Conference")
-                        .WithMany("ConferenceUsers")
-                        .HasForeignKey("ConferenceId");
-
-                    b.HasOne("ConferenceBookingAPI.UserAuth.ApplicationUser", "User")
-                        .WithMany("ConferenceUsers")
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("Conference");
-
-                    b.Navigation("User");
+                    b.Navigation("ApplicationUser");
                 });
 
             modelBuilder.Entity("ConferenceBookingAPI.Model.Conference", b =>
                 {
                     b.Navigation("Bookings");
-
-                    b.Navigation("ConferenceUsers");
-                });
-
-            modelBuilder.Entity("ConferenceBookingAPI.UserAuth.ApplicationUser", b =>
-                {
-                    b.Navigation("ConferenceUsers");
                 });
 #pragma warning restore 612, 618
         }

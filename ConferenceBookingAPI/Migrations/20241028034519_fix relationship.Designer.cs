@@ -4,6 +4,7 @@ using ConferenceBookingAPI.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ConferenceBookingAPI.Migrations
 {
     [DbContext(typeof(ConferenceBookingContext))]
-    partial class ConferenceBookingContextModelSnapshot : ModelSnapshot
+    [Migration("20241028034519_fix relationship")]
+    partial class fixrelationship
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -92,7 +95,10 @@ namespace ConferenceBookingAPI.Migrations
                     b.Property<string>("ConferenceName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("InchargeUserId")
+                    b.Property<Guid?>("InchargeUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("InchargeUserId1")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<bool?>("IsActive")
@@ -100,7 +106,7 @@ namespace ConferenceBookingAPI.Migrations
 
                     b.HasKey("ConferenceId");
 
-                    b.HasIndex("InchargeUserId");
+                    b.HasIndex("InchargeUserId1");
 
                     b.ToTable("Conferences");
                 });
@@ -116,14 +122,17 @@ namespace ConferenceBookingAPI.Migrations
                     b.Property<int?>("ConferenceId")
                         .HasColumnType("int");
 
-                    b.Property<string>("UserId")
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("UserId1")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("ConferenceUserId");
 
                     b.HasIndex("ConferenceId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId1");
 
                     b.ToTable("ConferenceUser");
                 });
@@ -203,7 +212,7 @@ namespace ConferenceBookingAPI.Migrations
                 {
                     b.HasOne("ConferenceBookingAPI.UserAuth.ApplicationUser", "InchargeUser")
                         .WithMany()
-                        .HasForeignKey("InchargeUserId");
+                        .HasForeignKey("InchargeUserId1");
 
                     b.Navigation("InchargeUser");
                 });
@@ -216,7 +225,7 @@ namespace ConferenceBookingAPI.Migrations
 
                     b.HasOne("ConferenceBookingAPI.UserAuth.ApplicationUser", "User")
                         .WithMany("ConferenceUsers")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId1");
 
                     b.Navigation("Conference");
 

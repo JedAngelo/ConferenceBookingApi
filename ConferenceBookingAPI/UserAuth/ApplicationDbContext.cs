@@ -1,21 +1,26 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using ConferenceBookingAPI.Model;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace ConferenceBookingAPI.UserAuth
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
-        public ApplicationDbContext(DbContextOptions options) : base(options)
-        {
-        }
+        public DbSet<Conference> Conferences { get; set; }
+        public DbSet<Booking> Bookings { get; set; }
+        public DbSet<ApplicationUser> ApplicationUsers { get; set; }
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            if (!optionsBuilder.IsConfigured)
-            {
-                optionsBuilder.UseSqlServer("Name=DefaultCon");
-            }
+            base.OnModelCreating(modelBuilder);
 
+            // Configure the one-to-many relationship between Conference and ApplicationUser
+            modelBuilder.Entity<Conference>()
+                .HasMany(c => c.ApplicationUser)
+                .WithOne(u => u.Conference)
+                .HasForeignKey(u => u.ConferenceId)
+                .OnDelete(DeleteBehavior.SetNull); // Or use another behavior as needed
         }
     }
 }

@@ -4,6 +4,7 @@ using ConferenceBookingAPI.UserAuth;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ConferenceBookingAPI.Migrations.ApplicationDb
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241028030115_added conference inchargeuser")]
+    partial class addedconferenceinchargeuser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,84 +24,6 @@ namespace ConferenceBookingAPI.Migrations.ApplicationDb
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("ConferenceBookingAPI.Model.Booking", b =>
-                {
-                    b.Property<int>("BookingId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BookingId"));
-
-                    b.Property<string>("ApprovedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateOnly>("BookedDate")
-                        .HasColumnType("date");
-
-                    b.Property<TimeOnly>("BookingEnd")
-                        .HasColumnType("time");
-
-                    b.Property<TimeOnly>("BookingStart")
-                        .HasColumnType("time");
-
-                    b.Property<int>("ConferenceId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ContactNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Department")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("EmailAddress")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("ExpectedAttendees")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Organizer")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Purpose")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Status")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("BookingId");
-
-                    b.HasIndex("ConferenceId");
-
-                    b.ToTable("Bookings");
-                });
-
-            modelBuilder.Entity("ConferenceBookingAPI.Model.Conference", b =>
-                {
-                    b.Property<int>("ConferenceId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ConferenceId"));
-
-                    b.Property<int?>("Capacity")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ConferenceName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool?>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.HasKey("ConferenceId");
-
-                    b.ToTable("Conferences");
-                });
 
             modelBuilder.Entity("ConferenceBookingAPI.UserAuth.ApplicationUser", b =>
                 {
@@ -112,9 +37,6 @@ namespace ConferenceBookingAPI.Migrations.ApplicationDb
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("ConferenceId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -123,9 +45,11 @@ namespace ConferenceBookingAPI.Migrations.ApplicationDb
                         .HasColumnType("bit");
 
                     b.Property<string>("FirstName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("LastName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("LockoutEnabled")
@@ -162,8 +86,6 @@ namespace ConferenceBookingAPI.Migrations.ApplicationDb
                         .HasColumnType("nvarchar(256)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ConferenceId");
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
@@ -309,27 +231,6 @@ namespace ConferenceBookingAPI.Migrations.ApplicationDb
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("ConferenceBookingAPI.Model.Booking", b =>
-                {
-                    b.HasOne("ConferenceBookingAPI.Model.Conference", "Conference")
-                        .WithMany("Bookings")
-                        .HasForeignKey("ConferenceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Conference");
-                });
-
-            modelBuilder.Entity("ConferenceBookingAPI.UserAuth.ApplicationUser", b =>
-                {
-                    b.HasOne("ConferenceBookingAPI.Model.Conference", "Conference")
-                        .WithMany("ApplicationUser")
-                        .HasForeignKey("ConferenceId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("Conference");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -379,13 +280,6 @@ namespace ConferenceBookingAPI.Migrations.ApplicationDb
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("ConferenceBookingAPI.Model.Conference", b =>
-                {
-                    b.Navigation("ApplicationUser");
-
-                    b.Navigation("Bookings");
                 });
 #pragma warning restore 612, 618
         }

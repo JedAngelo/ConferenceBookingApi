@@ -1,4 +1,5 @@
-﻿using ConferenceBookingAPI.Models.Dto;
+﻿using ConferenceBookingAPI.Model.Dto;
+using ConferenceBookingAPI.Models.Dto;
 
 namespace ConferenceBookingAPI.Services
 {
@@ -9,5 +10,7 @@ namespace ConferenceBookingAPI.Services
         Task<ApiResponse<List<BookingDto>>> GetAllBookings();
         Task<ApiResponse<BookingDto>> GetBookingByBookingId(long ID);
         Task<ApiResponse<List<BookingDto>>> GetBookingByConferenceId(long ID);
+        Task<ApiResponse<string>> UpdateBookingStatus(UpdateBookingStatusDto dto);
+
     }
 }

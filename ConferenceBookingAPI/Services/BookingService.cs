@@ -1,4 +1,5 @@
 ﻿using ConferenceBookingAPI.Model;
+using ConferenceBookingAPI.Model.Dto;
 using ConferenceBookingAPI.Models.Dto;
 using Microsoft.EntityFrameworkCore;
 
@@ -117,7 +118,7 @@ namespace ConferenceBookingAPI.Services
                     {
                         Data = _apiMessage,
                         ErrorMessage = "",
-                        IsSuccess = false
+                        IsSuccess = true
                     };
                 }
             }
@@ -330,7 +331,97 @@ namespace ConferenceBookingAPI.Services
             }
         }
 
+        public async Task<ApiResponse<string>> UpdateBookingStatus(UpdateBookingStatusDto dto)
+        {
+            try
+            {
+                var _apiMessage = "";
+                var _updateBooking = await _context.Bookings.FirstOrDefaultAsync(b => b.BookingId == dto.BookingId);
 
+                if (_updateBooking != null)
+                {
+                    _updateBooking.Status = dto.Status;
+                    if (dto.ApprovedBy != null)
+                    {
+                        _updateBooking.ApprovedBy = dto.ApprovedBy;
+                    }
+                    _context.Bookings.Update(_updateBooking);
+                    await _context.SaveChangesAsync();
+                    _apiMessage = "Successfully updated booking information.";
+                }
+                else
+                {
+                    _apiMessage = "Booking does not exist!";
+                }
+
+                return new ApiResponse<string>
+                {
+                    Data = _apiMessage,
+                    ErrorMessage = "",
+                    IsSuccess = true
+                };
+
+            }
+            catch (Exception ex)
+            {
+
+                return new ApiResponse<string>
+                {
+                    Data = "",
+                    ErrorMessage = $"ERROR: {ex.Message}",
+                    IsSuccess = false
+                };
+
+            }
+        }
+
+        public async Task<ApiResponse<List<BookingDto>>> GetBookingByDate(DateOnly date)
+        {
+            try
+            {
+                var _booking = await (from b in _context.Bookings
+                                      where b.BookedDate == date
+                                      select new BookingDto
+                                      {
+                                          BookingId = b.BookingId,
+                                          ConferenceId = b.ConferenceId,
+                                          BookedDate = b.BookedDate,
+                                          BookingStart = b.BookingStart,
+                                          BookingEnd = b.BookingEnd,
+                                          Description = b.Description,
+                                          Purpose = b.Purpose,
+                                          Status = b.Status,
+                                      }).ToListAsync();
+                if (_booking == null)
+                {
+                    return new ApiResponse<List<BookingDto>>
+                    {
+                        Data = null,
+                        ErrorMessage = "No Bookings found by that date",
+                        IsSuccess = false
+                    };
+                }
+
+
+                return new ApiResponse<List<BookingDto>>
+                {
+                    Data = _booking,
+                    ErrorMessage = "",
+                    IsSuccess = true
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<List<BookingDto>>
+                {
+                    Data = [],
+                    ErrorMessage = $"Error retrieving booking: {ex.Message} ",
+                    IsSuccess = false
+                };
+
+            }
+
+        }
 
 
         #endregion

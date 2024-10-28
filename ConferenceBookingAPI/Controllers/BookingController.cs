@@ -26,6 +26,12 @@ namespace ConferenceBookingAPI.Controllers
             var result = await _bookingService.AddOrUpdateBooking(dto);
             return Ok(result);
         }
+        [HttpPost("UpdateBookingStatus")]
+        public async Task<ActionResult<ApiResponse<string>>> UpdateBookingStatuus(UpdateBookingStatusDto dto)
+        {
+            var result = await _bookingService.UpdateBookingStatus(dto);
+            return Ok(result);
+        }
 
         [HttpDelete("DeleteBooking/{ID}")]
         public async Task<ActionResult<ApiResponse<string>>> DeleteBooking(long ID)

@@ -27,7 +27,7 @@ namespace ConferenceBookingAPI.Services
                 if (dto.ConferenceId == null)
                 {
                     var _conference = new Conference
-                    {
+                    {   
                         ConferenceName = dto.ConferenceName,
                         Capacity = dto.Capacity,
                         IsActive = dto.IsActive,

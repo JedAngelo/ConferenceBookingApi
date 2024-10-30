@@ -15,7 +15,7 @@ namespace ConferenceBookingAPI.Model.Dto
 
         public bool? IsActive { get; set; }
 
-        public virtual ICollection<Booking> Bookings { get; set; } = new List<Booking>();
+        public virtual List<BookingDto> BookingDtos { get; set; } = new List<BookingDto>();
 
         public virtual List<AdminUsersDto>? AdminUsers { get; set; } = new List<AdminUsersDto>();
     }

@@ -4,5 +4,6 @@
     {
         public const string UserRole = "UserRole";
         public const string AdminRole = "AdminRole";
+        public const string SuperAdmin = "SuperAdmin";
     }
 }

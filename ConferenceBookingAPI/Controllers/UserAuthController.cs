@@ -17,6 +17,14 @@ namespace ConferenceBookingAPI.Controllers
         {
             _authService = authService;
         }
+
+        [HttpPost("RegisterSuperAdmin")]
+        public async Task<ActionResult<ApiResponse<string>>> RegisterSuperAdminAsync([FromBody] RegisterModelDto param)
+        {
+            var result = await _authService.RegisterSuperAdminAsync(param);
+            return Ok(result);
+        }
+
         //[Authorize(Roles = UserRoles.AdminRole)]
         [HttpPost("RegisterAdmin")]
         public async Task<ActionResult<ApiResponse<string>>> RegisterAdmin([FromBody] RegisterModelDto param)

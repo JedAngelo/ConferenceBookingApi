@@ -26,6 +26,68 @@ namespace ConferenceBookingAPI.UserAuth
             _configuration = configuration;
         }
 
+        public async Task<ApiResponse<string>> RegisterSuperAdminAsync(RegisterModelDto param)
+        {
+            try
+            {
+                var _isUserExist = await _userManager.FindByNameAsync(param.UserName);
+                if(_isUserExist != null)
+                {
+                    return new ApiResponse<string>
+                    {
+                        Data = "This user already exists!",
+                        ErrorMessage = "Error",
+                        IsSuccess = false
+                    };
+                }
+
+                var _userData = new ApplicationUser
+                {
+                    SecurityStamp = Guid.NewGuid().ToString(),
+                    UserName = param.UserName,
+                    Email = param.Email,
+                    FirstName = param.FirstName,
+                    LastName = param.LastName,
+                };
+                var _createResult = await _userManager.CreateAsync(_userData, param.Password);
+                if (!_createResult.Succeeded)
+                {
+                    return new ApiResponse<string>
+                    {
+                        Data = "",
+                        IsSuccess = false,
+                        ErrorMessage = _createResult.Errors.FirstOrDefault()?.Description
+                    };
+
+                }
+                if (!await _roleManager.RoleExistsAsync(UserRoles.SuperAdmin))
+                {
+                    await _roleManager.CreateAsync(new IdentityRole(UserRoles.SuperAdmin));
+                }
+                if (await _roleManager.RoleExistsAsync(UserRoles.SuperAdmin))
+                {
+                    await _userManager.AddToRoleAsync(_userData, UserRoles.SuperAdmin);
+                }
+
+                return new ApiResponse<string>
+                {
+                    Data = "Super Admin Registered",
+                    IsSuccess = true,
+                    ErrorMessage = ""
+                };
+            
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<string>
+                {
+                    Data = "",
+                    IsSuccess = false,
+                    ErrorMessage = ex.Message
+                };
+            }
+        }
+
         public async Task<ApiResponse<string>> RegisterAdminAsync(RegisterModelDto param)
         {
             var _isUserExist = await _userManager.FindByNameAsync(param.UserName);

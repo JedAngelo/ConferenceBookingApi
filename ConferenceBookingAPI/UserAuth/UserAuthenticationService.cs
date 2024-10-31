@@ -233,7 +233,8 @@ namespace ConferenceBookingAPI.UserAuth
                 UserName = _checkUser.UserName!,
                 Token = new JwtSecurityTokenHandler().WriteToken(_token),
                 UserToken = _newRefreshToken,
-                UserRole = roles
+                UserRole = roles,
+                ConferenceId = _checkUser.ConferenceId
             };
 
             return new ApiResponse<UserLoginDto>
@@ -262,6 +263,7 @@ namespace ConferenceBookingAPI.UserAuth
                         {
                             UserId = user.Id,
                             UserName = user.UserName!,
+                            ConferenceId = user.ConferenceId,
                         };
 
                         adminUsers.Add(userLoginDto);
@@ -283,6 +285,42 @@ namespace ConferenceBookingAPI.UserAuth
                     Data = null,
                     IsSuccess = false,
                     ErrorMessage = ex.Message // You can customize the error message
+                };
+            }
+        }
+
+        public async Task<ApiResponse<int>> GetUserConferenceId(string userId)
+        {
+            try
+            {
+                var _user = await _userManager.FindByIdAsync(userId);
+                var _conferenceId = _user.ConferenceId;
+
+                if (_conferenceId != null)
+                {
+                    return new ApiResponse<int>
+                    {
+                        Data = (int)_conferenceId,
+                        ErrorMessage = "",
+                        IsSuccess = true
+                    };
+                }
+
+                return new ApiResponse<int>
+                {
+                    Data = 0,
+                    IsSuccess = true,
+                    ErrorMessage = "No conference id found"
+                };
+                
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<int>
+                {
+                    Data = 0,
+                    IsSuccess = false,
+                    ErrorMessage = ex.Message
                 };
             }
         }

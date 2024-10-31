@@ -49,6 +49,13 @@ namespace ConferenceBookingAPI.Controllers
             return Ok(result);
         }
 
+        [HttpGet("GetUserConferenceId")]
+        public async Task<ActionResult<ApiResponse<int>>> GetUserConferenceId(string userId)
+        {
+            var result = await _authService.GetUserConferenceId(userId);
+            return Ok(result);
+        }
+
         //[Authorize(Roles = UserRoles.AdminRole)]
         [HttpGet("GetAdmins")]
         public async Task<ActionResult<ApiResponse<List<AdminUsersDto>>>> GetAdminsAsync()
@@ -56,5 +63,6 @@ namespace ConferenceBookingAPI.Controllers
             var result = await _authService.GetAdminsAsync();
             return Ok(result);
         }
+
     }
 }

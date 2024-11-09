@@ -39,6 +39,10 @@ public partial class Booking
     [DefaultValue("pending")]
     public string? Status { get; set; } = "pending";
 
+    public string? RecurringType { get; set; }
+
+    public string? RecurringEndDate { get; set; }
+
     public int ConferenceId { get; set; }
 
     public virtual Conference Conference { get; set; } = null!;

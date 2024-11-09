@@ -47,14 +47,22 @@ namespace ConferenceBookingAPI.Services
 
 
                         //Booking information
-                        ConferenceId = dto.ConferenceId,
-                        BookedDate = dto.BookedDate,
-                        BookingStart = dto.BookingStart,
-                        BookingEnd = dto.BookingEnd,
+                        ConferenceId = (int)dto.ConferenceId,
+                        BookedDate = (DateOnly)dto.BookedDate,
+                        BookingStart = (TimeOnly)dto.BookingStart,
+                        BookingEnd = (TimeOnly)dto.BookingEnd,
                         Description = dto.Description,
                         Purpose = dto.Purpose,
                         Status = "pending",
+                        RecurringType = dto.RecurringType
                     };
+
+                    if (dto.RecurringType != null)
+                    {
+                        _booking.RecurringType = dto.RecurringType;
+                        _booking.RecurringEndDate = dto.RecurringEndDate;
+                    }
+
 
                     await _context.Bookings.AddAsync(_booking);
                     await _context.SaveChangesAsync();
@@ -72,7 +80,7 @@ namespace ConferenceBookingAPI.Services
 
                     var _apiMessage = "";
                     var _updateBooking = await _context.Bookings.FirstOrDefaultAsync(b => b.BookingId == dto.BookingId);
-
+                   
 
                     var _conferenceExist = await _context.Conferences.AnyAsync(c => c.ConferenceId == dto.ConferenceId);
                     if (!_conferenceExist)
@@ -87,25 +95,54 @@ namespace ConferenceBookingAPI.Services
 
                     if (_updateBooking != null)
                     {
-                        _updateBooking.ApprovedBy = dto.ApprovedBy;
+                        if (dto.ApprovedBy != null)
+                            _updateBooking.ApprovedBy = dto.ApprovedBy;
 
-                        //Updated organizer informatnion
-                        _updateBooking.Organizer = dto.Organizer;
-                        _updateBooking.ExpectedAttendees = dto.ExpectedAttendees;
-                        _updateBooking.ContactNumber = dto.ContactNumber;
-                        _updateBooking.Department = dto.Department;
-                        _updateBooking.EmailAddress = dto.EmailAddress;
+                        // Updated organizer information
+                        if (dto.Organizer != null)
+                            _updateBooking.Organizer = dto.Organizer;
 
-                        //Updated booking info
-                        _updateBooking.ConferenceId = dto.ConferenceId;
-                        _updateBooking.BookedDate = dto.BookedDate;
-                        _updateBooking.BookingStart = dto.BookingStart;
-                        _updateBooking.BookingEnd = dto.BookingEnd;
-                        _updateBooking.Description = dto.Description;
-                        _updateBooking.Purpose = dto.Purpose;
-                        _updateBooking.Status = dto.Status;
+                        if (dto.ExpectedAttendees != null)
+                            _updateBooking.ExpectedAttendees = dto.ExpectedAttendees;
 
-                        _context.Bookings.Update(_updateBooking);
+                        if (dto.ContactNumber != null)
+                            _updateBooking.ContactNumber = dto.ContactNumber;
+
+                        if (dto.Department != null)
+                            _updateBooking.Department = dto.Department;
+
+                        if (dto.EmailAddress != null)
+                            _updateBooking.EmailAddress = dto.EmailAddress;
+
+                        // Updated booking info
+                        if (dto.ConferenceId != null)
+                            _updateBooking.ConferenceId = (int)dto.ConferenceId;
+
+                        if (dto.BookedDate != null)
+                            _updateBooking.BookedDate = (DateOnly)dto.BookedDate;
+
+                        if (dto.BookingStart != null)
+                            _updateBooking.BookingStart = (TimeOnly)dto.BookingStart;
+
+                        if (dto.BookingEnd != null)
+                            _updateBooking.BookingEnd = (TimeOnly)dto.BookingEnd;
+
+                        if (dto.Description != null)
+                            _updateBooking.Description = dto.Description;
+
+                        if (dto.Purpose != null)
+                            _updateBooking.Purpose = dto.Purpose;
+
+                        if (dto.Status != null)
+                            _updateBooking.Status = dto.Status;
+
+                        if (dto.RecurringType != null)
+                            _updateBooking.RecurringType = dto.RecurringType;
+
+                        if (dto.RecurringEndDate != null)
+                            _updateBooking.RecurringEndDate = dto.RecurringEndDate;
+
+
                         await _context.SaveChangesAsync();
                         _apiMessage = "Successfully updated booking information.";
                     }

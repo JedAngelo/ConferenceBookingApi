@@ -6,13 +6,13 @@ namespace ConferenceBookingAPI.Models.Dto
     {
         public int? BookingId { get; set; }
 
-        public string ApprovedBy { get; set; } = null!;
+        public string? ApprovedBy { get; set; } = null!;
 
-        public DateOnly BookedDate { get; set; }
+        public DateOnly? BookedDate { get; set; }
 
-        public TimeOnly BookingStart { get; set; }
+        public TimeOnly? BookingStart { get; set; }
 
-        public TimeOnly BookingEnd { get; set; }
+        public TimeOnly? BookingEnd { get; set; }
 
         public string? Organizer { get; set; }  
 
@@ -24,14 +24,18 @@ namespace ConferenceBookingAPI.Models.Dto
 
         public int? ExpectedAttendees { get; set; }
 
-        public string Purpose { get; set; } = null!;
+        public string? Purpose { get; set; } = null!;
 
         public string? Description { get; set; }
 
         public string? Status { get; set; } = "pending";
 
-        public int ConferenceId { get; set; }
+        public string? RecurringType { get; set; }
 
-        public virtual Conference? Conference { get; set; } = null!;
+        public string? RecurringEndDate { get; set; }
+
+        public int? ConferenceId { get; set; }
+
+        //public virtual Conference? Conference { get; set; } = null!;
     }
 }

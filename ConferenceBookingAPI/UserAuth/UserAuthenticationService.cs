@@ -45,9 +45,7 @@ namespace ConferenceBookingAPI.UserAuth
                 {
                     SecurityStamp = Guid.NewGuid().ToString(),
                     UserName = param.UserName,
-                    Email = param.Email,
-                    FirstName = param.FirstName,
-                    LastName = param.LastName,
+                    Email = param.Email
                 };
                 var _createResult = await _userManager.CreateAsync(_userData, param.Password);
                 if (!_createResult.Succeeded)
@@ -105,9 +103,7 @@ namespace ConferenceBookingAPI.UserAuth
             {
                 SecurityStamp = Guid.NewGuid().ToString(),
                 UserName = param.UserName,
-                Email = param.Email,
-                FirstName = param.FirstName,
-                LastName = param.LastName
+                Email = param.Email
             };
 
             var _createResult = await _userManager.CreateAsync(_userData, param.Password);
@@ -156,9 +152,7 @@ namespace ConferenceBookingAPI.UserAuth
             {
                 SecurityStamp = Guid.NewGuid().ToString(),
                 UserName = param.UserName,
-                Email = param.Email,
-                FirstName = param.FirstName,
-                LastName = param.LastName
+                Email = param.Email
             };
 
             var _createResult = await _userManager.CreateAsync(_userData, param.Password);
@@ -245,21 +239,21 @@ namespace ConferenceBookingAPI.UserAuth
             };
         }
 
-        public async Task<ApiResponse<List<AdminUsersDto>>> GetAdminsAsync()
+        public async Task<ApiResponse<List<UsersDto>>> GetAdminsAsync()
         {
             try
             {
                 // Get all users
                 var allUsers = await _userManager.Users.ToListAsync();
-                var adminUsers = new List<AdminUsersDto>();
+                var adminUsers = new List<UsersDto>();
 
                 foreach (var user in allUsers)
                 {
                     // Check if the user has the Admin role
                     if (await _userManager.IsInRoleAsync(user, UserRoles.AdminRole))
                     {
-                        var roles = await _userManager.GetRolesAsync(user);
-                        var userLoginDto = new AdminUsersDto
+                        //var roles = await _userManager.GetRolesAsync(user);
+                        var userLoginDto = new UsersDto
                         {
                             UserId = user.Id,
                             UserName = user.UserName!,
@@ -270,7 +264,7 @@ namespace ConferenceBookingAPI.UserAuth
                     }
                 }
 
-                return new ApiResponse<List<AdminUsersDto>>
+                return new ApiResponse<List<UsersDto>>
                 {
                     Data = adminUsers,
                     IsSuccess = true,
@@ -280,11 +274,50 @@ namespace ConferenceBookingAPI.UserAuth
             catch (Exception ex)
             {
                 // Log the exception (optional)
-                return new ApiResponse<List<AdminUsersDto>>
+                return new ApiResponse<List<UsersDto>>
                 {
                     Data = null,
                     IsSuccess = false,
-                    ErrorMessage = ex.Message // You can customize the error message
+                    ErrorMessage = ex.Message
+                };
+            }
+        }
+
+        public async Task<ApiResponse<List<UsersDto>>> GetUserAsync()
+        {
+            try
+            {
+                var _allUserrs = await _userManager.Users.ToListAsync();
+                var _users = new List<UsersDto>();
+
+                foreach(var user in _allUserrs)
+                {
+                    if (await _userManager.IsInRoleAsync(user, UserRoles.UserRole))
+                    {
+                        var result = new UsersDto
+                        {
+                            UserId = user.Id,
+                            UserName = user.UserName!,
+                            ConferenceId = user.ConferenceId
+                        };
+                        _users.Add(result);
+                    }
+                }
+
+                return new ApiResponse<List<UsersDto>>
+                {
+                    Data = _users,
+                    IsSuccess = true,
+                    ErrorMessage = ""
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<List<UsersDto>>
+                {
+                    Data = null,
+                    IsSuccess = false,
+                    ErrorMessage = ex.Message
                 };
             }
         }

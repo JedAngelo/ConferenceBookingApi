@@ -3,6 +3,7 @@ using ConferenceBookingAPI.Model.Dto;
 using ConferenceBookingAPI.Model.Dto.UserAuthDto;
 using ConferenceBookingAPI.Models.Dto;
 using ConferenceBookingAPI.UserAuth;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace ConferenceBookingAPI.Services
@@ -10,10 +11,12 @@ namespace ConferenceBookingAPI.Services
     public class ConferenceService : IConferenceService
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public ConferenceService(ApplicationDbContext context)
+        public ConferenceService(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
 
@@ -26,6 +29,17 @@ namespace ConferenceBookingAPI.Services
 
                 if (dto.ConferenceId == null)
                 {
+                    var _existingConference = await _context.Conferences.AnyAsync(x => x.ConferenceName == dto.ConferenceName);
+                    if (_existingConference)
+                    {
+                        return new ApiResponse<string>
+                        {
+                            Data = "",
+                            ErrorMessage = "A conference with this name already exists.",
+                            IsSuccess = false
+                        };
+                    }
+
                     var _conference = new Conference
                     {   
                         ConferenceName = dto.ConferenceName,
@@ -36,11 +50,11 @@ namespace ConferenceBookingAPI.Services
                                                       
 
 
-                    if(dto.AdminUsers != null)
+                    if(dto.UserDtos != null)
                     {
-                        foreach(var users in dto.AdminUsers)
+                        foreach(var users in dto.UserDtos)
                         {
-                            var userExist = await _context.ApplicationUsers.FirstOrDefaultAsync(x => x.Id == users.UserId);
+                            var userExist = await _userManager.FindByIdAsync(users.UserId);
                             if (userExist != null)
                             {
                                 userExist.ConferenceId = dto.ConferenceId;
@@ -70,14 +84,34 @@ namespace ConferenceBookingAPI.Services
                         _updateConference.ConferenceName = dto.ConferenceName;
                         _updateConference.Capacity = dto.Capacity;
                         _updateConference.IsActive = dto.IsActive;
-                        _context.Conferences.Update(_updateConference);
+                        //_context.Conferences.Update(_updateConference);
+
+                        if (dto.UserDtos != null)
+                        {
+                            if (_updateConference.ApplicationUser == null)
+                            {
+                                _updateConference.ApplicationUser = new List<ApplicationUser>();
+                            }
+                            foreach (var users in dto.UserDtos)
+                            {
+                                var userExist = await _userManager.FindByIdAsync(users.UserId);
+                                if (userExist != null)
+                                {
+                                    userExist.ConferenceId = dto.ConferenceId;
+                                    _updateConference.ApplicationUser.Add(userExist);
+                                }
+                            }
+                        }
+
+
                         await _context.SaveChangesAsync();
-                        _apiMessage = "Successfully update conference.";
+                        _apiMessage = "Successfully updated conference.";
                     }
                     else
                     {
                         _apiMessage = "Conference does not exist or has been deleted";
                     }
+
 
 
                     return new ApiResponse<string>
@@ -147,10 +181,11 @@ namespace ConferenceBookingAPI.Services
                     ConferenceName = c.ConferenceName,
                     Capacity = c.Capacity,
                     IsActive = c.IsActive,
-                    AdminUsers = c.ApplicationUser!.Select(x => new AdminUsersDto
+                    UserDtos = c.ApplicationUser!.Select(x => new UsersDto
                     {
                         UserId = x.Id,
-                        UserName = x.UserName!
+                        UserName = x.UserName!,
+                        ConferenceId = x.ConferenceId
                     }).ToList()
                 }).ToListAsync();
 
@@ -184,10 +219,11 @@ namespace ConferenceBookingAPI.Services
                     ConferenceName = c.ConferenceName,
                     Capacity = c.Capacity,
                     IsActive = c.IsActive,
-                    AdminUsers = c.ApplicationUser!.Select(x => new AdminUsersDto
+                    UserDtos = c.ApplicationUser!.Select(x => new UsersDto
                     {
                         UserId = x.Id,
-                        UserName = x.UserName!
+                        UserName = x.UserName!,
+                        ConferenceId = x.ConferenceId
                     }).ToList()
                 }).FirstOrDefaultAsync();
 

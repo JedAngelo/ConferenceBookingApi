@@ -58,9 +58,16 @@ namespace ConferenceBookingAPI.Controllers
 
         //[Authorize(Roles = UserRoles.AdminRole)]
         [HttpGet("GetAdmins")]
-        public async Task<ActionResult<ApiResponse<List<AdminUsersDto>>>> GetAdminsAsync()
+        public async Task<ActionResult<ApiResponse<List<UsersDto>>>> GetAdminsAsync()
         {
             var result = await _authService.GetAdminsAsync();
+            return Ok(result);
+        }
+
+        [HttpGet("GetUsers")]
+        public async Task<ActionResult<ApiResponse<List<UsersDto>>>> GetUserAsync()
+        {
+            var result = await _authService.GetUserAsync();
             return Ok(result);
         }
 

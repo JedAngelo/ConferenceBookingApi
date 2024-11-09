@@ -17,6 +17,6 @@ namespace ConferenceBookingAPI.Model.Dto
 
         public virtual List<BookingDto> BookingDtos { get; set; } = new List<BookingDto>();
 
-        public virtual List<AdminUsersDto>? AdminUsers { get; set; } = new List<AdminUsersDto>();
+        public virtual List<UsersDto>? UserDtos { get; set; } = new List<UsersDto>();
     }
 }

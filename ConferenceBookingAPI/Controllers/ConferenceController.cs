@@ -24,8 +24,19 @@ namespace ConferenceAPI.Controllers
         public async Task<ActionResult<ApiResponse<string>>> AddOrUpdateConference(ConferenceDto dto)
         {
             var result = await _conferenceService.AddOrUpdateConference(dto);
+
+            if (!result.IsSuccess)
+            {
+                if (result.ErrorMessage == "A conference with this name already exists.")
+                {
+                    return Conflict(result);
+                }
+                return BadRequest(result);
+            }
+
             return Ok(result);
         }
+
 
         [HttpDelete("DeleteConference/{ID}")]
         public async Task<ActionResult<ApiResponse<string>>> DeleteConference(long ID)

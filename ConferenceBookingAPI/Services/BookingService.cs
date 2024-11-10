@@ -2,6 +2,7 @@
 using ConferenceBookingAPI.Model.Dto;
 using ConferenceBookingAPI.Models.Dto;
 using Microsoft.EntityFrameworkCore;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ConferenceBookingAPI.Services
 {
@@ -33,38 +34,52 @@ namespace ConferenceBookingAPI.Services
                         };
                     }
 
-                    var _booking = new Booking
+
+                    var startDate = dto.BookedDate;
+
+                    if (dto.RecurringType == null)
                     {
-                        BookingId = 0,
-                        ApprovedBy = dto.ApprovedBy,
-
-                        //Organizer information
-                        Organizer = dto.Organizer,
-                        ExpectedAttendees = dto.ExpectedAttendees,
-                        ContactNumber = dto.ContactNumber,
-                        Department = dto.Department,
-                        EmailAddress = dto.EmailAddress,
-
-
-                        //Booking information
-                        ConferenceId = (int)dto.ConferenceId,
-                        BookedDate = (DateOnly)dto.BookedDate,
-                        BookingStart = (TimeOnly)dto.BookingStart,
-                        BookingEnd = (TimeOnly)dto.BookingEnd,
-                        Description = dto.Description,
-                        Purpose = dto.Purpose,
-                        Status = "pending",
-                        RecurringType = dto.RecurringType
-                    };
-
-                    if (dto.RecurringType != null)
+                        // Create a single non-recurring booking
+                        var booking = CreateBookingFromDto(dto, startDate);
+                        await _context.Bookings.AddAsync(booking);
+                    }
+                    else
                     {
-                        _booking.RecurringType = dto.RecurringType;
-                        _booking.RecurringEndDate = dto.RecurringEndDate;
+                        // Handle recurring bookings
+                        int incrementDays = dto.RecurringType switch
+                        {
+                            "daily" => 1,
+                            "weekly" => 7,
+                            "monthly" => 0, // For monthly, we handle it separately
+                            _ => 0
+                        };
+
+                        while (startDate <= dto.RecurringEndDate?.AddDays(1))
+                        {
+                            var _existingBooking = await _context.Bookings.FirstOrDefaultAsync(b =>
+                                b.BookedDate == startDate &&
+                                (
+                                    (dto.BookingStart >= b.BookingStart && dto.BookingStart <= b.BookingEnd) ||
+                                    (dto.BookingEnd >= b.BookingStart && dto.BookingEnd <= b.BookingEnd) ||
+                                    (dto.BookingStart <= b.BookingStart && dto.BookingEnd >= b.BookingEnd)
+                                )
+                            );          
+                            var booking = CreateBookingFromDto(dto, startDate);
+
+                            await _context.Bookings.AddAsync(booking);
+
+                            if (dto.RecurringType == "monthly")
+                            {
+                                startDate = startDate?.AddMonths(1);
+                            }
+                            else if (incrementDays > 0)
+                            {
+                                startDate = startDate?.AddDays(incrementDays);
+                            }                           
+                        }
                     }
 
 
-                    await _context.Bookings.AddAsync(_booking);
                     await _context.SaveChangesAsync();
 
                     return new ApiResponse<string>
@@ -95,52 +110,38 @@ namespace ConferenceBookingAPI.Services
 
                     if (_updateBooking != null)
                     {
-                        if (dto.ApprovedBy != null)
-                            _updateBooking.ApprovedBy = dto.ApprovedBy;
+                        _updateBooking.ApprovedBy = dto.ApprovedBy ?? _updateBooking.ApprovedBy;
+                        _updateBooking.Organizer = dto.Organizer ?? _updateBooking.Organizer;
+                        _updateBooking.ExpectedAttendees = dto.ExpectedAttendees ?? _updateBooking.ExpectedAttendees;
+                        _updateBooking.ContactNumber = dto.ContactNumber ?? _updateBooking.ContactNumber;
+                        _updateBooking.Department = dto.Department ?? _updateBooking.Department;
+                        _updateBooking.EmailAddress = dto.EmailAddress ?? _updateBooking.EmailAddress;
+                        _updateBooking.ConferenceId = dto.ConferenceId ?? _updateBooking.ConferenceId;
+                        _updateBooking.BookedDate = dto.BookedDate ?? _updateBooking.BookedDate;
+                        _updateBooking.BookingStart = dto.BookingStart ?? _updateBooking.BookingStart;
+                        _updateBooking.BookingEnd = dto.BookingEnd ?? _updateBooking.BookingEnd;
+                        _updateBooking.Description = dto.Description ?? _updateBooking.Description;
+                        _updateBooking.Purpose = dto.Purpose ?? _updateBooking.Purpose;
 
-                        // Updated organizer information
-                        if (dto.Organizer != null)
-                            _updateBooking.Organizer = dto.Organizer;
+                        if (dto.Status != null && dto.Status == "approved")
+                        {
+                            var _conflicBooking = await _context.Bookings.FirstOrDefaultAsync(b =>
+                                b.BookedDate == dto.BookedDate &&
+                                (
+                                    (dto.BookingStart >= b.BookingStart && dto.BookingStart <= b.BookingEnd) ||
+                                    (dto.BookingEnd >= b.BookingStart && dto.BookingEnd <= b.BookingEnd) ||
+                                    (dto.BookingStart <= b.BookingStart && dto.BookingEnd >= b.BookingEnd)
+                                )
+                            );
 
-                        if (dto.ExpectedAttendees != null)
-                            _updateBooking.ExpectedAttendees = dto.ExpectedAttendees;
-
-                        if (dto.ContactNumber != null)
-                            _updateBooking.ContactNumber = dto.ContactNumber;
-
-                        if (dto.Department != null)
-                            _updateBooking.Department = dto.Department;
-
-                        if (dto.EmailAddress != null)
-                            _updateBooking.EmailAddress = dto.EmailAddress;
-
-                        // Updated booking info
-                        if (dto.ConferenceId != null)
-                            _updateBooking.ConferenceId = (int)dto.ConferenceId;
-
-                        if (dto.BookedDate != null)
-                            _updateBooking.BookedDate = (DateOnly)dto.BookedDate;
-
-                        if (dto.BookingStart != null)
-                            _updateBooking.BookingStart = (TimeOnly)dto.BookingStart;
-
-                        if (dto.BookingEnd != null)
-                            _updateBooking.BookingEnd = (TimeOnly)dto.BookingEnd;
-
-                        if (dto.Description != null)
-                            _updateBooking.Description = dto.Description;
-
-                        if (dto.Purpose != null)
-                            _updateBooking.Purpose = dto.Purpose;
-
-                        if (dto.Status != null)
+                            if (_conflicBooking != null)
+                            {
+                                _conflicBooking.Status = "rejected";
+                                _conflicBooking.Description = "Conference admin has approved a priority meeting";
+                            }
                             _updateBooking.Status = dto.Status;
-
-                        if (dto.RecurringType != null)
-                            _updateBooking.RecurringType = dto.RecurringType;
-
-                        if (dto.RecurringEndDate != null)
-                            _updateBooking.RecurringEndDate = dto.RecurringEndDate;
+                            
+                        }
 
 
                         await _context.SaveChangesAsync();
@@ -164,10 +165,32 @@ namespace ConferenceBookingAPI.Services
                 return new ApiResponse<string>
                 {
                     Data = "",
-                    ErrorMessage = $"Error: {ex.Message}",
+                    ErrorMessage = $"Error: {ex.Message} | Inner Exception: {ex.InnerException.Message}",
                     IsSuccess = false
                 };
             }
+        }
+
+        private Booking CreateBookingFromDto(BookingDto dto, DateOnly? date)
+        {
+            return new Booking
+            {
+                Organizer = dto.Organizer,
+                ExpectedAttendees = dto.ExpectedAttendees,
+                ContactNumber = dto.ContactNumber,
+                Department = dto.Department,
+                EmailAddress = dto.EmailAddress,
+                ConferenceId = (int)dto.ConferenceId,
+                BookedDate = (DateOnly)date!,
+                BookingStart = (TimeOnly)dto.BookingStart,
+                BookingEnd = (TimeOnly)dto.BookingEnd,
+                Description = dto.Description,
+                Purpose = dto.Purpose,
+                Status = "pending",
+                RecurringType = dto.RecurringType,
+                RecurringEndDate = dto.RecurringEndDate,
+            };
+            
         }
 
         public async Task<ApiResponse<string>> DeleteBooking(long ID)

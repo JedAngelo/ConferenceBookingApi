@@ -213,7 +213,7 @@ namespace ConferenceBookingAPI.UserAuth
             var _token = new JwtSecurityToken(
                 issuer: _configuration["JWT:ValidIssuer"],
                 audience: _configuration["JWT:ValidAudience"],
-                expires: DateTime.Now.AddMinutes(60),
+                expires: DateTime.Now.AddMinutes(5),
                 claims: _authClaims,
                 signingCredentials: new SigningCredentials(_authSigningKey, SecurityAlgorithms.HmacSha256)
             );
@@ -283,7 +283,7 @@ namespace ConferenceBookingAPI.UserAuth
             }
         }
 
-        public async Task<ApiResponse<List<UsersDto>>> GetUserAsync()
+        public async Task<ApiResponse<List<UsersDto>>> GetUsersAsync()
         {
             try
             {
@@ -292,7 +292,7 @@ namespace ConferenceBookingAPI.UserAuth
 
                 foreach(var user in _allUserrs)
                 {
-                    if (await _userManager.IsInRoleAsync(user, UserRoles.UserRole))
+                    if (!await _userManager.IsInRoleAsync(user, UserRoles.SuperAdmin))
                     {
                         var result = new UsersDto
                         {

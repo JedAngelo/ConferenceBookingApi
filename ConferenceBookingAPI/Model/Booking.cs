@@ -9,7 +9,7 @@ public partial class Booking
 {
     public int BookingId { get; set; }
 
-    public string ApprovedBy { get; set; } = null!;
+    public string? ApprovedBy { get; set; } = null!;
 
     //public DateTime? BookingStart { get; set; }
 
@@ -41,7 +41,7 @@ public partial class Booking
 
     public string? RecurringType { get; set; }
 
-    public string? RecurringEndDate { get; set; }
+    public DateOnly? RecurringEndDate { get; set; }
 
     public int ConferenceId { get; set; }
 

@@ -65,9 +65,9 @@ namespace ConferenceBookingAPI.Controllers
         }
 
         [HttpGet("GetUsers")]
-        public async Task<ActionResult<ApiResponse<List<UsersDto>>>> GetUserAsync()
+        public async Task<ActionResult<ApiResponse<List<UsersDto>>>> GetUsersAsync()
         {
-            var result = await _authService.GetUserAsync();
+            var result = await _authService.GetUsersAsync();
             return Ok(result);
         }
 

@@ -32,7 +32,7 @@ namespace ConferenceBookingAPI.Models.Dto
 
         public string? RecurringType { get; set; }
 
-        public string? RecurringEndDate { get; set; }
+        public DateOnly? RecurringEndDate { get; set; }
 
         public int? ConferenceId { get; set; }
 

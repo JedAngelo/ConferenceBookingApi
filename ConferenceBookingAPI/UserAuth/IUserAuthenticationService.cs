@@ -10,7 +10,7 @@ namespace ConferenceBookingAPI.UserAuth
         Task<ApiResponse<string>> RegisterAdminAsync(RegisterModelDto param);
         Task<ApiResponse<string>> RegisterUserAsync(RegisterModelDto param);
         Task<ApiResponse<List<UsersDto>>> GetAdminsAsync();
-        Task<ApiResponse<List<UsersDto>>> GetUserAsync();
+        Task<ApiResponse<List<UsersDto>>> GetUsersAsync();
         Task<ApiResponse<int>> GetUserConferenceId(string userId);
     }
 }

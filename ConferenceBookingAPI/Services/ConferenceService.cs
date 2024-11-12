@@ -26,6 +26,23 @@ namespace ConferenceBookingAPI.Services
         {
             try
             {
+                if(!await _context.Statuses.AnyAsync())
+                {
+                    var _statuses = new List<Status>
+                    {
+                        new Status { StatusId = 1, StatusName = "pending" },
+                        new Status { StatusId = 2, StatusName = "pending cancellation" },
+                        new Status { StatusId = 3, StatusName = "pending extension" },
+                        new Status { StatusId = 4, StatusName = "approved" },
+                        new Status { StatusId = 5, StatusName = "cancelled" },
+                        new Status { StatusId = 6, StatusName = "extended" },
+                        new Status { StatusId = 7, StatusName = "rejected" },
+                        new Status { StatusId = 8, StatusName = "ended" },
+                    };
+
+                    await _context.Statuses.AddRangeAsync(_statuses);
+                    await _context.SaveChangesAsync();
+                }
 
                 if (dto.ConferenceId == null)
                 {
@@ -77,7 +94,7 @@ namespace ConferenceBookingAPI.Services
                 else
                 {
                     var _apiMessage = "";
-                    var _updateConference = await _context.Conferences.FirstOrDefaultAsync(c => c.ConferenceId == dto.ConferenceId);
+                    var _updateConference = await _context.Conferences.Include(a => a.ApplicationUser).FirstOrDefaultAsync(c => c.ConferenceId == dto.ConferenceId);
 
                     if (_updateConference != null)
                     {
@@ -88,10 +105,16 @@ namespace ConferenceBookingAPI.Services
 
                         if (dto.UserDtos != null)
                         {
-                            if (_updateConference.ApplicationUser == null)
+                            var _existingUser = _updateConference.ApplicationUser.ToList();
+                            if (_existingUser != null)
                             {
-                                _updateConference.ApplicationUser = new List<ApplicationUser>();
+                                _existingUser.Clear();
+                                foreach (var user in _existingUser)
+                                {
+                                    user.ConferenceId = null;
+                                }
                             }
+                            _updateConference.ApplicationUser = new List<ApplicationUser>();
                             foreach (var users in dto.UserDtos)
                             {
                                 var userExist = await _userManager.FindByIdAsync(users.UserId);
@@ -188,6 +211,17 @@ namespace ConferenceBookingAPI.Services
                         ConferenceId = x.ConferenceId
                     }).ToList()
                 }).ToListAsync();
+                foreach (var conference in _conferences)
+                {
+                    foreach (var userDto in conference.UserDtos)
+                    {
+                        var user = await _userManager.FindByIdAsync(userDto.UserId);
+                        if (user != null)
+                        {
+                            userDto.UserRole = await _userManager.GetRolesAsync(user);
+                        }
+                    }
+                }
 
                 return new ApiResponse<List<ConferenceDto>>
                 {

@@ -1,4 +1,5 @@
 ﻿using ConferenceBookingAPI.Model;
+using ConferenceBookingAPI.Model.Dto;
 
 namespace ConferenceBookingAPI.Models.Dto
 {
@@ -28,13 +29,15 @@ namespace ConferenceBookingAPI.Models.Dto
 
         public string? Description { get; set; }
 
-        public string? Status { get; set; } = "pending";
+        public int? StatusCode { get; set; } = 0;
 
         public string? RecurringType { get; set; }
 
         public DateOnly? RecurringEndDate { get; set; }
 
         public int? ConferenceId { get; set; }
+
+        public string? StatusName { get; set; }
 
         //public virtual Conference? Conference { get; set; } = null!;
     }

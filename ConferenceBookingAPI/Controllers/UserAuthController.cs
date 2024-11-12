@@ -65,11 +65,19 @@ namespace ConferenceBookingAPI.Controllers
         }
 
         [HttpGet("GetUsers")]
-        public async Task<ActionResult<ApiResponse<List<UsersDto>>>> GetUsersAsync()
+        public async Task<ActionResult<ApiResponse<List<UsersDto>>>> GetUsersAsync(string? role = null)
         {
-            var result = await _authService.GetUsersAsync();
+            var result = await _authService.GetUsersAsync(role);
             return Ok(result);
         }
+
+        [HttpGet("RemoveUser/{userId}")]
+        public async Task<ActionResult<ApiResponse<string>>> RemoveUserByIdAsync(string userId)
+        {
+            var result = await _authService.RemoveUserByIdAsync(userId);
+            return Ok(result);
+        }
+
 
     }
 }

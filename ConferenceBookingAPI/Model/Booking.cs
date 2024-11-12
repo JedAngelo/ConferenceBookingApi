@@ -35,9 +35,8 @@ public partial class Booking
     public string Purpose { get; set; } = null!;
 
     public string? Description { get; set; }
-
-    [DefaultValue("pending")]
-    public string? Status { get; set; } = "pending";
+    [DefaultValue(0)]
+    public int? StatusCode { get; set; } = 0;
 
     public string? RecurringType { get; set; }
 
@@ -46,4 +45,6 @@ public partial class Booking
     public int ConferenceId { get; set; }
 
     public virtual Conference Conference { get; set; } = null!;
+
+    public virtual Status Status { get; set; } = null!;
 }

@@ -283,24 +283,35 @@ namespace ConferenceBookingAPI.UserAuth
             }
         }
 
-        public async Task<ApiResponse<List<UsersDto>>> GetUsersAsync()
+        public async Task<ApiResponse<List<UsersDto>>> GetUsersAsync(string? role = null)
         {
             try
             {
-                var _allUserrs = await _userManager.Users.ToListAsync();
+                var _allUsers = await _userManager.Users.ToListAsync();
+
                 var _users = new List<UsersDto>();
 
-                foreach(var user in _allUserrs)
+                foreach (var user in _allUsers)
                 {
-                    if (!await _userManager.IsInRoleAsync(user, UserRoles.SuperAdmin))
+                    // Skip super admins if no specific role is requested
+                    if (role == null && await _userManager.IsInRoleAsync(user, UserRoles.SuperAdmin))
                     {
-                        var result = new UsersDto
+                        continue;
+                    }
+
+                    // Check if user is in the requested role or if no specific role is required
+                    if (role == null ||
+                        (role == "admin" && await _userManager.IsInRoleAsync(user, UserRoles.AdminRole)) ||
+                        (role == "user" && await _userManager.IsInRoleAsync(user, UserRoles.UserRole)))
+                    {
+                        var roles = await _userManager.GetRolesAsync(user);
+                        _users.Add(new UsersDto
                         {
                             UserId = user.Id,
                             UserName = user.UserName!,
-                            ConferenceId = user.ConferenceId
-                        };
-                        _users.Add(result);
+                            ConferenceId = user.ConferenceId,
+                            UserRole = roles
+                        });
                     }
                 }
 
@@ -358,6 +369,48 @@ namespace ConferenceBookingAPI.UserAuth
             }
         }
 
+        public async Task<ApiResponse<string>> RemoveUserByIdAsync(string userId)
+        {
+            try
+            {
+                var _apiMessage = "";
+                var _errorMessage = "";
+
+                var _userToRemove = await _userManager.FindByIdAsync(userId);
+                if (_userToRemove != null)
+                {
+                    var result = await _userManager.DeleteAsync(_userToRemove);
+                    if (result.Succeeded)
+                    {
+                        _apiMessage = "Successfully deleted user";
+                    }
+                    else
+                    {
+                        _errorMessage = string.Join("; ", result.Errors.Select(e => e.Description));
+                    }
+                }
+                else
+                {
+                    _errorMessage = "User does not exist!";
+                }
+
+                return new ApiResponse<string>
+                {
+                    Data = _apiMessage,
+                    ErrorMessage = _errorMessage,
+                    IsSuccess = string.IsNullOrEmpty(_errorMessage)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<string>
+                {
+                    Data = "",
+                    ErrorMessage = $"{ex.Message}",
+                    IsSuccess = false
+                };
+            }
+        }
 
 
     }

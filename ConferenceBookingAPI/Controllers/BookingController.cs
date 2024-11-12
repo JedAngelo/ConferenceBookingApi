@@ -26,12 +26,6 @@ namespace ConferenceBookingAPI.Controllers
             var result = await _bookingService.AddOrUpdateBooking(dto);
             return Ok(result);
         }
-        [HttpPost("UpdateBookingStatus")]
-        public async Task<ActionResult<ApiResponse<string>>> UpdateBookingStatuus(UpdateBookingStatusDto dto)
-        {
-            var result = await _bookingService.UpdateBookingStatus(dto);
-            return Ok(result);
-        }
 
         [HttpDelete("DeleteBooking/{ID}")]
         public async Task<ActionResult<ApiResponse<string>>> DeleteBooking(long ID)
@@ -60,6 +54,34 @@ namespace ConferenceBookingAPI.Controllers
             var result = await _bookingService.GetBookingByConferenceId(ID);
             return Ok(result);
         }
+
+        #endregion
+
+        #region Status Controller
+
+        [HttpPost("AddOrUpdateStatus")]
+        public async Task<ActionResult<ApiResponse<string>>> AddOrUpdateStatus(StatusDto dto)
+        {
+            var result = _bookingService.AddOrUpdateStatus(dto);
+            return Ok(result);
+        }
+
+        [HttpDelete("DeleteStatus/{id}")]
+        public async Task<ActionResult<ApiResponse<string>>> DeleteStatus(int id)
+        {
+            var result = _bookingService.DeleteStatus(id);
+            return Ok(result);
+        }
+
+        [HttpGet("GetStatuses")]
+        public async Task<ActionResult<ApiResponse<StatusDto>>> GetStatuses()
+        {
+            var result = _bookingService.GetStatuses();
+            return Ok(result);
+        }
+
+
+
 
         #endregion
 

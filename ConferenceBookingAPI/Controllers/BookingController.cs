@@ -28,7 +28,7 @@ namespace ConferenceBookingAPI.Controllers
         }
 
         [HttpDelete("DeleteBooking/{ID}")]
-        public async Task<ActionResult<ApiResponse<string>>> DeleteBooking(long ID)
+        public async Task<ActionResult<ApiResponse<string>>> DeleteBooking(Guid ID)
         {
             var result = await _bookingService.DeleteBooking(ID);
             return Ok(result);
@@ -42,14 +42,14 @@ namespace ConferenceBookingAPI.Controllers
         }
 
         [HttpGet("GetBookingByBookingID/{ID}")]
-        public async Task<ActionResult<ApiResponse<BookingDto>>> GetBookingById(long ID)
+        public async Task<ActionResult<ApiResponse<BookingDto>>> GetBookingById(Guid ID)
         {
             var result = await _bookingService.GetBookingByBookingId(ID);
             return Ok(result);
         }
 
         [HttpGet("GetBookingByConferenceID/{ID}")]
-        public async Task<ActionResult<List<ApiResponse<BookingDto>>>> GetBookingByConferenceId(long ID)
+        public async Task<ActionResult<List<ApiResponse<BookingDto>>>> GetBookingByConferenceId(Guid ID)
         {
             var result = await _bookingService.GetBookingByConferenceId(ID);
             return Ok(result);
@@ -57,33 +57,7 @@ namespace ConferenceBookingAPI.Controllers
 
         #endregion
 
-        #region Status Controller
-
-        [HttpPost("AddOrUpdateStatus")]
-        public async Task<ActionResult<ApiResponse<string>>> AddOrUpdateStatus(StatusDto dto)
-        {
-            var result = _bookingService.AddOrUpdateStatus(dto);
-            return Ok(result);
-        }
-
-        [HttpDelete("DeleteStatus/{id}")]
-        public async Task<ActionResult<ApiResponse<string>>> DeleteStatus(int id)
-        {
-            var result = _bookingService.DeleteStatus(id);
-            return Ok(result);
-        }
-
-        [HttpGet("GetStatuses")]
-        public async Task<ActionResult<ApiResponse<StatusDto>>> GetStatuses()
-        {
-            var result = _bookingService.GetStatuses();
-            return Ok(result);
-        }
-
-
-
-
-        #endregion
+        
 
     }
 }

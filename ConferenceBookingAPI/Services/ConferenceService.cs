@@ -26,23 +26,6 @@ namespace ConferenceBookingAPI.Services
         {
             try
             {
-                if(!await _context.Statuses.AnyAsync())
-                {
-                    var _statuses = new List<Status>
-                    {
-                        new Status { StatusId = 1, StatusName = "pending" },
-                        new Status { StatusId = 2, StatusName = "pending cancellation" },
-                        new Status { StatusId = 3, StatusName = "pending extension" },
-                        new Status { StatusId = 4, StatusName = "approved" },
-                        new Status { StatusId = 5, StatusName = "cancelled" },
-                        new Status { StatusId = 6, StatusName = "extended" },
-                        new Status { StatusId = 7, StatusName = "rejected" },
-                        new Status { StatusId = 8, StatusName = "ended" },
-                    };
-
-                    await _context.Statuses.AddRangeAsync(_statuses);
-                    await _context.SaveChangesAsync();
-                }
 
                 if (dto.ConferenceId == null)
                 {
@@ -58,18 +41,19 @@ namespace ConferenceBookingAPI.Services
                     }
 
                     var _conference = new Conference
-                    {   
+                    {
+                        ConferenceId = new Guid(),
                         ConferenceName = dto.ConferenceName,
                         Capacity = dto.Capacity,
                         IsActive = dto.IsActive,
                         ApplicationUser = new List<ApplicationUser>()
                     };
-                                                      
 
 
-                    if(dto.UserDtos != null)
+
+                    if (dto.UserDtos != null)
                     {
-                        foreach(var users in dto.UserDtos)
+                        foreach (var users in dto.UserDtos)
                         {
                             var userExist = await _userManager.FindByIdAsync(users.UserId);
                             if (userExist != null)
@@ -160,7 +144,7 @@ namespace ConferenceBookingAPI.Services
             }
         }
 
-        public async Task<ApiResponse<string>> DeleteConference(long ID)
+        public async Task<ApiResponse<string>> DeleteConference(Guid ID)
         {
             try
             {
@@ -243,7 +227,7 @@ namespace ConferenceBookingAPI.Services
             }
         }
 
-        public async Task<ApiResponse<ConferenceDto>> GetConferenceById(int ID)
+        public async Task<ApiResponse<ConferenceDto>> GetConferenceById(Guid ID)
         {
             try
             {

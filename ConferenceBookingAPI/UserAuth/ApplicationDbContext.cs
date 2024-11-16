@@ -8,7 +8,7 @@ namespace ConferenceBookingAPI.UserAuth
     {
         public DbSet<Conference> Conferences { get; set; }
         public DbSet<Booking> Bookings { get; set; }
-        public DbSet<Status> Statuses { get; set; }
+        public virtual DbSet<Holiday> Holidays { get; set; }
         //public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 

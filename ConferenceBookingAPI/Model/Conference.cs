@@ -6,7 +6,7 @@ namespace ConferenceBookingAPI.Model;
 
 public partial class Conference
 {
-    public int ConferenceId { get; set; }
+    public Guid ConferenceId { get; set; }
 
     public string? ConferenceName { get; set; }
 

@@ -7,7 +7,7 @@ namespace ConferenceBookingAPI.Model;
 
 public partial class Booking
 {
-    public int BookingId { get; set; }
+    public Guid BookingId { get; set; }
 
     public string? ApprovedBy { get; set; } = null!;
 
@@ -35,16 +35,20 @@ public partial class Booking
     public string Purpose { get; set; } = null!;
 
     public string? Description { get; set; }
-    [DefaultValue(0)]
-    public int? StatusCode { get; set; } = 0;
+
+    [DefaultValue("pending")]
+    public string? Status { get; set; } = "pending";
 
     public string? RecurringType { get; set; }
 
     public DateOnly? RecurringEndDate { get; set; }
 
-    public int ConferenceId { get; set; }
+    public Guid ConferenceId { get; set; }
+
+    public bool? Extended { get; set; }
+
+    public TimeOnly? ExtendedTime { get; set; }
 
     public virtual Conference Conference { get; set; } = null!;
 
-    public virtual Status Status { get; set; } = null!;
 }

@@ -36,6 +36,7 @@ builder.Services.AddDbContext<ConferenceBookingContext>(option => option.UseSqlS
 builder.Services.AddScoped<IUserAuthenticationService, UserAuthenticationService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<IConferenceService, ConferenceService>();
+builder.Services.AddScoped<IHolidayService, HolidayService>();
 
 builder.Services.AddDbContext<ApplicationDbContext>(option => option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultCon")));
 

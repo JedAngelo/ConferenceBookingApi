@@ -19,7 +19,7 @@ public partial class ConferenceBookingContext : DbContext
 
     public virtual DbSet<Conference> Conferences { get; set; }
 
-    public DbSet<Status> Statuses { get; set; }
+    public virtual DbSet<Holiday> Holidays { get; set; }
 
 
 

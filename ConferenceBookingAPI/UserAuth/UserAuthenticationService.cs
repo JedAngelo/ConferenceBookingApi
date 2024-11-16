@@ -31,7 +31,7 @@ namespace ConferenceBookingAPI.UserAuth
             try
             {
                 var _isUserExist = await _userManager.FindByNameAsync(param.UserName);
-                if(_isUserExist != null)
+                if (_isUserExist != null)
                 {
                     return new ApiResponse<string>
                     {
@@ -73,7 +73,7 @@ namespace ConferenceBookingAPI.UserAuth
                     IsSuccess = true,
                     ErrorMessage = ""
                 };
-            
+
             }
             catch (Exception ex)
             {
@@ -333,7 +333,7 @@ namespace ConferenceBookingAPI.UserAuth
             }
         }
 
-        public async Task<ApiResponse<int>> GetUserConferenceId(string userId)
+        public async Task<ApiResponse<Guid?>> GetUserConferenceId(string userId)
         {
             try
             {
@@ -342,27 +342,27 @@ namespace ConferenceBookingAPI.UserAuth
 
                 if (_conferenceId != null)
                 {
-                    return new ApiResponse<int>
+                    return new ApiResponse<Guid?>
                     {
-                        Data = (int)_conferenceId,
+                        Data = (Guid)_conferenceId,
                         ErrorMessage = "",
                         IsSuccess = true
                     };
                 }
 
-                return new ApiResponse<int>
+                return new ApiResponse<Guid?>
                 {
-                    Data = 0,
+                    Data = null,
                     IsSuccess = true,
                     ErrorMessage = "No conference id found"
                 };
-                
+
             }
             catch (Exception ex)
             {
-                return new ApiResponse<int>
+                return new ApiResponse<Guid?>
                 {
-                    Data = 0,
+                    Data = null,
                     IsSuccess = false,
                     ErrorMessage = ex.Message
                 };

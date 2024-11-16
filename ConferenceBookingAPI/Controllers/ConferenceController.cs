@@ -39,7 +39,7 @@ namespace ConferenceAPI.Controllers
 
 
         [HttpDelete("DeleteConference/{ID}")]
-        public async Task<ActionResult<ApiResponse<string>>> DeleteConference(long ID)
+        public async Task<ActionResult<ApiResponse<string>>> DeleteConference(Guid ID)
         {
             var result = await _conferenceService.DeleteConference(ID);
             return Ok(result);
@@ -53,7 +53,7 @@ namespace ConferenceAPI.Controllers
         }
 
         [HttpGet("GetConferenceById/{ID}")]
-        public async Task<ActionResult<ApiResponse<ConferenceDto>>> GetConferenceById(int ID)
+        public async Task<ActionResult<ApiResponse<ConferenceDto>>> GetConferenceById(Guid ID)
         {
             var result = await _conferenceService.GetConferenceById(ID);
             return Ok(result);

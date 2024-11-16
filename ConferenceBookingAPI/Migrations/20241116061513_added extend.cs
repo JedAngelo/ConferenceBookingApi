@@ -2,18 +2,18 @@
 
 #nullable disable
 
-namespace ConferenceBookingAPI.Migrations.ApplicationDb
+namespace ConferenceBookingAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class addedrecurringtype : Migration
+    public partial class addedextend : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<string>(
-                name: "RecurringType",
+            migrationBuilder.AddColumn<bool>(
+                name: "Extended",
                 table: "Bookings",
-                type: "nvarchar(max)",
+                type: "bit",
                 nullable: true);
         }
 
@@ -21,7 +21,7 @@ namespace ConferenceBookingAPI.Migrations.ApplicationDb
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "RecurringType",
+                name: "Extended",
                 table: "Bookings");
         }
     }

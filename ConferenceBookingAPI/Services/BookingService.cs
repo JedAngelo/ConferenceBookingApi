@@ -1,6 +1,7 @@
 ﻿using ConferenceBookingAPI.Model;
 using ConferenceBookingAPI.Model.Dto;
 using ConferenceBookingAPI.Models.Dto;
+using ConferenceBookingAPI.UserAuth;
 using Microsoft.EntityFrameworkCore;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -8,9 +9,9 @@ namespace ConferenceBookingAPI.Services
 {
     public class BookingService : IBookingService
     {
-        private readonly ConferenceBookingContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public BookingService(ConferenceBookingContext context)
+        public BookingService(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -53,14 +54,10 @@ namespace ConferenceBookingAPI.Services
                             "monthly" => 0, // For monthly, we handle it separately
                             _ => 0
                         };
+                        var _holidays = await _context.Holidays.ToListAsync();
 
                         while (startDate <= dto.RecurringEndDate?.AddDays(1))
                         {
-
-                            //if (startDate?.DayOfWeek == DayOfWeek.Sunday)
-                            //{
-                            //    continue;
-                            //}
 
 
                             var booking = CreateBookingFromDto(dto, startDate);
@@ -70,10 +67,18 @@ namespace ConferenceBookingAPI.Services
                             if (dto.RecurringType == "monthly")
                             {
                                 startDate = startDate?.AddMonths(1);
+                                if (_holidays.Any(x => x.HolidayDate == startDate))
+                                {
+                                    startDate = startDate?.AddMonths(1);
+                                }
                             }
                             else if (incrementDays > 0)
                             {
                                 startDate = startDate?.DayOfWeek == DayOfWeek.Saturday ? startDate?.AddDays(incrementDays + 1) : startDate?.AddDays(incrementDays);
+                                if (_holidays.Any(x => x.HolidayDate == startDate))
+                                {
+                                    startDate = startDate?.AddDays(incrementDays);
+                                }
                             }
                         }
                     }
@@ -93,8 +98,7 @@ namespace ConferenceBookingAPI.Services
 
 
                     var _apiMessage = "";
-                    var _updateBooking = await _context.Bookings.Include(s => s.Status).FirstOrDefaultAsync(b => b.BookingId == dto.BookingId);
-                    var _statuses = await _context.Statuses.ToListAsync();
+                    var _updateBooking = await _context.Bookings.FirstOrDefaultAsync(b => b.BookingId == dto.BookingId);
 
 
                     var _conferenceExist = await _context.Conferences.AnyAsync(c => c.ConferenceId == dto.ConferenceId);
@@ -122,38 +126,38 @@ namespace ConferenceBookingAPI.Services
                         _updateBooking.BookingEnd = dto.BookingEnd ?? _updateBooking.BookingEnd;
                         _updateBooking.Description = dto.Description ?? _updateBooking.Description;
                         _updateBooking.Purpose = dto.Purpose ?? _updateBooking.Purpose;
+                        _updateBooking.Extended = dto.Extended ?? _updateBooking.Extended;
+                        _updateBooking.ExtendedTime = dto.ExtendedTime ?? _updateBooking.ExtendedTime;
 
 
-                        if (dto.StatusCode != null && dto.StatusCode == _statuses.Find(x => x.StatusName == "approved")!.StatusId)
+                        if (dto.Status != null && dto.Status == "approved")
                         {
                             var _conflictingBookings = await _context.Bookings
                                                                 .Where(b =>
-                                                                    b.BookedDate == dto.BookedDate &&
+                                                                    b.BookedDate == dto.BookedDate && b.ConferenceId == dto.ConferenceId && b.BookingId != dto.BookingId &&
                                                                     (
-                                                                        (dto.BookingStart >= b.BookingStart && dto.BookingStart <= b.BookingEnd) ||
-                                                                        (dto.BookingEnd >= b.BookingStart && dto.BookingEnd <= b.BookingEnd) ||
-                                                                        (dto.BookingStart <= b.BookingStart && dto.BookingEnd >= b.BookingEnd)
+                                                                       (b.BookingStart <= dto.BookingStart && b.BookingEnd >= dto.BookingStart) ||
+                                                                       (b.BookingStart <= dto.BookingEnd && b.BookingEnd >= dto.BookingStart) ||
+                                                                       (b.BookingStart >= dto.BookingStart && b.BookingEnd <= dto.BookingEnd)
                                                                     )
                                                                 ).ToListAsync();
 
 
                             if (_conflictingBookings != null)
                             {
-                                var rejectStatus = _statuses.Find(x => x.StatusName == "rejected");
-                                foreach(var booking in _conflictingBookings)
+                                foreach (var booking in _conflictingBookings)
                                 {
-                                    booking.Status = rejectStatus;
-                                    booking.StatusCode = rejectStatus!.StatusId;
+                                    booking.Status = "rejected";
                                     booking.Description = "Conference admin has approved a priority meeting";
                                 }
 
                             }
-                            _updateBooking.StatusCode = dto.StatusCode;
+                            _updateBooking.Status = dto.Status;
 
                         }
                         else
                         {
-                            _updateBooking.StatusCode = dto.StatusCode ?? _updateBooking.StatusCode;
+                            _updateBooking.Status = dto.Status ?? _updateBooking.Status;
                         }
 
                         await _context.SaveChangesAsync();
@@ -187,25 +191,26 @@ namespace ConferenceBookingAPI.Services
         {
             return new Booking
             {
+                BookingId = new Guid(),
                 Organizer = dto.Organizer,
                 ExpectedAttendees = dto.ExpectedAttendees,
                 ContactNumber = dto.ContactNumber,
                 Department = dto.Department,
                 EmailAddress = dto.EmailAddress,
-                ConferenceId = (int)dto.ConferenceId,
+                ConferenceId = (Guid)dto.ConferenceId,
                 BookedDate = (DateOnly)date!,
                 BookingStart = (TimeOnly)dto.BookingStart,
                 BookingEnd = (TimeOnly)dto.BookingEnd,
                 Description = dto.Description,
                 Purpose = dto.Purpose,
-                StatusCode = 0,
+                Status = "pending",
                 RecurringType = dto.RecurringType,
                 RecurringEndDate = dto.RecurringEndDate,
             };
 
         }
 
-        public async Task<ApiResponse<string>> DeleteBooking(long ID)
+        public async Task<ApiResponse<string>> DeleteBooking(Guid ID)
         {
             try
             {
@@ -247,7 +252,7 @@ namespace ConferenceBookingAPI.Services
         {
             try
             {
-                var _booknings = await _context.Bookings.Include(s => s.Status).Select(b => new BookingDto
+                var _booknings = await _context.Bookings.Select(b => new BookingDto
                 {
 
                     BookingId = b.BookingId,
@@ -267,8 +272,9 @@ namespace ConferenceBookingAPI.Services
                     BookingEnd = b.BookingEnd,
                     Description = b.Description,
                     Purpose = b.Purpose,
-                    StatusCode = b.StatusCode,
-                    StatusName = b.Status.StatusName
+                    Status = b.Status,
+                    Extended = b.Extended,
+                    ExtendedTime = b.ExtendedTime
                 }).ToListAsync();
 
                 return new ApiResponse<List<BookingDto>>
@@ -289,7 +295,7 @@ namespace ConferenceBookingAPI.Services
             }
         }
 
-        public async Task<ApiResponse<BookingDto>> GetBookingByBookingId(long ID)
+        public async Task<ApiResponse<BookingDto>> GetBookingByBookingId(Guid ID)
         {
             try
             {
@@ -314,10 +320,9 @@ namespace ConferenceBookingAPI.Services
                                           BookingEnd = b.BookingEnd,
                                           Description = b.Description,
                                           Purpose = b.Purpose,
-                                          StatusCode = b.StatusCode,
-
-                                          // Status Info
-                                          StatusName = b.Status != null ? b.Status.StatusName : null
+                                          Status = b.Status,
+                                          Extended = b.Extended,
+                                          ExtendedTime = b.ExtendedTime
                                       }).FirstOrDefaultAsync();
 
                 if (_booking == null)
@@ -350,7 +355,7 @@ namespace ConferenceBookingAPI.Services
             }
         }
 
-        public async Task<ApiResponse<List<BookingDto>>> GetBookingByConferenceId(long ID)
+        public async Task<ApiResponse<List<BookingDto>>> GetBookingByConferenceId(Guid ID)
         {
             try
             {
@@ -375,8 +380,9 @@ namespace ConferenceBookingAPI.Services
                                           BookingEnd = b.BookingEnd,
                                           Description = b.Description,
                                           Purpose = b.Purpose,
-                                          StatusCode = b.StatusCode,
-                                          StatusName = b.Status != null ? b.Status.StatusName : null
+                                          Status = b.Status,
+                                          Extended = b.Extended,
+                                          ExtendedTime = b.ExtendedTime
                                       }).ToListAsync();
                 if (_booking == null)
                 {
@@ -423,8 +429,9 @@ namespace ConferenceBookingAPI.Services
                                           BookingEnd = b.BookingEnd,
                                           Description = b.Description,
                                           Purpose = b.Purpose,
-                                          StatusCode = b.StatusCode,
-                                          StatusName = b.Status.StatusName
+                                          Status = b.Status,
+                                          Extended = b.Extended,
+                                          ExtendedTime = b.ExtendedTime
                                       }).ToListAsync();
                 if (_booking == null)
                 {
@@ -460,134 +467,6 @@ namespace ConferenceBookingAPI.Services
 
         #endregion
 
-        #region Status Service
 
-
-        public async Task<ApiResponse<string>> AddOrUpdateStatus(StatusDto dto)
-        {
-            try
-            {
-                var _successMessage = "";
-                var _errorMessage = "";
-
-                if (dto.StatusId == null)
-                {
-                    var _status = new Status
-                    {
-                        StatusName = dto.StatusName
-                    };
-
-                    await _context.Statuses.AddAsync(_status);
-                    await _context.SaveChangesAsync();
-                    _successMessage = "Successfully added status";
-
-
-
-                }
-                else
-                {
-                    var _existingStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.StatusId == dto.StatusId);
-                    if (_existingStatus == null)
-                    {
-                        _errorMessage = "Status does not exist";
-                    }
-                    else
-                    {
-                        _existingStatus.StatusName = dto.StatusName;
-                        await _context.SaveChangesAsync();
-                        _successMessage = "Successfully updated status";
-                    }
-
-
-
-                }
-
-                return new ApiResponse<string>
-                {
-                    Data = _successMessage,
-                    ErrorMessage = _errorMessage,
-                    IsSuccess = string.IsNullOrEmpty(_errorMessage)
-                };
-
-            }
-            catch (Exception ex)
-            {
-
-                return new ApiResponse<string>
-                {
-                    Data = "",
-                    ErrorMessage = $"Error: {ex.Message}",
-                    IsSuccess = true
-                };
-            }
-        }
-
-        public async Task<ApiResponse<string>> DeleteStatus(int id)
-        {
-            try
-            {
-                var _successMessage = "";
-                var _errorMessage = "";
-                var _existingStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.StatusId == id);
-                if (_existingStatus == null)
-                {
-                    _errorMessage = "Status does not exist";
-                }
-                else
-                {
-                    _context.Statuses.Remove(_existingStatus);
-                    await _context.SaveChangesAsync();
-                    _successMessage = "Deleted status!";
-                }
-                return new ApiResponse<string>
-                {
-                    Data = _successMessage,
-                    ErrorMessage = _errorMessage,
-                    IsSuccess = string.IsNullOrEmpty(_errorMessage)
-                };
-
-            }
-            catch (Exception ex)
-            {
-
-                return new ApiResponse<string>
-                {
-                    Data = "",
-                    ErrorMessage = $"Error: {ex.Message}",
-                    IsSuccess = false
-                };
-            }
-        }
-
-        public async Task<ApiResponse<List<StatusDto>>> GetStatuses()
-        {
-            try
-            {
-                var _statuses = await _context.Statuses.Select(s => new StatusDto
-                {
-                    StatusId = s.StatusId,
-                    StatusName = s.StatusName
-                }).ToListAsync();
-
-                return new ApiResponse<List<StatusDto>>
-                {
-                    Data = _statuses,
-                    ErrorMessage = "",
-                    IsSuccess = true
-                };
-            }
-            catch (Exception ex)
-            {
-                return new ApiResponse<List<StatusDto>>
-                {
-                    Data = [],
-                    ErrorMessage = $"Error: {ex.Message}",
-                    IsSuccess = true
-                };
-            }
-        }
-
-
-        #endregion
     }
 }

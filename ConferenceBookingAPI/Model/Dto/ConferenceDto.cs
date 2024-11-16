@@ -7,7 +7,7 @@ namespace ConferenceBookingAPI.Model.Dto
 {
     public class ConferenceDto
     {
-        public int? ConferenceId { get; set; }
+        public Guid? ConferenceId { get; set; }
 
         public string? ConferenceName { get; set; }
 

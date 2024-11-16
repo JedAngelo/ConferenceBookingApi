@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace ConferenceBookingAPI.Migrations.ApplicationDb
+namespace ConferenceBookingAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241028040239_merge db context")]
-    partial class mergedbcontext
+    [Migration("20241116061513_added extend")]
+    partial class addedextend
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,14 +27,11 @@ namespace ConferenceBookingAPI.Migrations.ApplicationDb
 
             modelBuilder.Entity("ConferenceBookingAPI.Model.Booking", b =>
                 {
-                    b.Property<int>("BookingId")
+                    b.Property<Guid>("BookingId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BookingId"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ApprovedBy")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateOnly>("BookedDate")
@@ -46,8 +43,8 @@ namespace ConferenceBookingAPI.Migrations.ApplicationDb
                     b.Property<TimeOnly>("BookingStart")
                         .HasColumnType("time");
 
-                    b.Property<int>("ConferenceId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("ConferenceId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ContactNumber")
                         .HasColumnType("nvarchar(max)");
@@ -64,11 +61,20 @@ namespace ConferenceBookingAPI.Migrations.ApplicationDb
                     b.Property<int?>("ExpectedAttendees")
                         .HasColumnType("int");
 
+                    b.Property<bool?>("Extended")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Organizer")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Purpose")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateOnly?>("RecurringEndDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("RecurringType")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
@@ -83,11 +89,9 @@ namespace ConferenceBookingAPI.Migrations.ApplicationDb
 
             modelBuilder.Entity("ConferenceBookingAPI.Model.Conference", b =>
                 {
-                    b.Property<int>("ConferenceId")
+                    b.Property<Guid>("ConferenceId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ConferenceId"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int?>("Capacity")
                         .HasColumnType("int");
@@ -95,40 +99,30 @@ namespace ConferenceBookingAPI.Migrations.ApplicationDb
                     b.Property<string>("ConferenceName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("InchargeUserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<bool?>("IsActive")
                         .HasColumnType("bit");
 
                     b.HasKey("ConferenceId");
 
-                    b.HasIndex("InchargeUserId");
-
                     b.ToTable("Conferences");
                 });
 
-            modelBuilder.Entity("ConferenceBookingAPI.Model.ConferenceUser", b =>
+            modelBuilder.Entity("ConferenceBookingAPI.Model.Holiday", b =>
                 {
-                    b.Property<int>("ConferenceUserId")
+                    b.Property<Guid>("HolidayId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ConferenceUserId"));
+                    b.Property<DateOnly>("HolidayDate")
+                        .HasColumnType("date");
 
-                    b.Property<int?>("ConferenceId")
-                        .HasColumnType("int");
+                    b.Property<string>("HolidayName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+                    b.HasKey("HolidayId");
 
-                    b.HasKey("ConferenceUserId");
-
-                    b.HasIndex("ConferenceId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("ConferenceUsers");
+                    b.ToTable("Holidays");
                 });
 
             modelBuilder.Entity("ConferenceBookingAPI.UserAuth.ApplicationUser", b =>
@@ -143,20 +137,15 @@ namespace ConferenceBookingAPI.Migrations.ApplicationDb
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("ConferenceId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
@@ -192,6 +181,8 @@ namespace ConferenceBookingAPI.Migrations.ApplicationDb
                         .HasColumnType("nvarchar(256)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ConferenceId");
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
@@ -348,29 +339,14 @@ namespace ConferenceBookingAPI.Migrations.ApplicationDb
                     b.Navigation("Conference");
                 });
 
-            modelBuilder.Entity("ConferenceBookingAPI.Model.Conference", b =>
-                {
-                    b.HasOne("ConferenceBookingAPI.UserAuth.ApplicationUser", "InchargeUser")
-                        .WithMany()
-                        .HasForeignKey("InchargeUserId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("InchargeUser");
-                });
-
-            modelBuilder.Entity("ConferenceBookingAPI.Model.ConferenceUser", b =>
+            modelBuilder.Entity("ConferenceBookingAPI.UserAuth.ApplicationUser", b =>
                 {
                     b.HasOne("ConferenceBookingAPI.Model.Conference", "Conference")
-                        .WithMany("ConferenceUsers")
-                        .HasForeignKey("ConferenceId");
-
-                    b.HasOne("ConferenceBookingAPI.UserAuth.ApplicationUser", "User")
-                        .WithMany("ConferenceUsers")
-                        .HasForeignKey("UserId");
+                        .WithMany("ApplicationUser")
+                        .HasForeignKey("ConferenceId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Conference");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -426,14 +402,9 @@ namespace ConferenceBookingAPI.Migrations.ApplicationDb
 
             modelBuilder.Entity("ConferenceBookingAPI.Model.Conference", b =>
                 {
+                    b.Navigation("ApplicationUser");
+
                     b.Navigation("Bookings");
-
-                    b.Navigation("ConferenceUsers");
-                });
-
-            modelBuilder.Entity("ConferenceBookingAPI.UserAuth.ApplicationUser", b =>
-                {
-                    b.Navigation("ConferenceUsers");
                 });
 #pragma warning restore 612, 618
         }

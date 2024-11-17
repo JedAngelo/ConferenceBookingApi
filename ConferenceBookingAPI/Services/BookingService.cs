@@ -134,7 +134,7 @@ namespace ConferenceBookingAPI.Services
                         {
                             var _conflictingBookings = await _context.Bookings
                                                                 .Where(b =>
-                                                                    b.BookedDate == dto.BookedDate && b.ConferenceId == dto.ConferenceId && b.BookingId != dto.BookingId &&
+                                                                    b.BookedDate == dto.BookedDate && b.ConferenceId == dto.ConferenceId && b.BookingId != dto.BookingId && b.Status == dto.Status &&
                                                                     (
                                                                        (b.BookingStart <= dto.BookingStart && b.BookingEnd >= dto.BookingStart) ||
                                                                        (b.BookingStart <= dto.BookingEnd && b.BookingEnd >= dto.BookingStart) ||

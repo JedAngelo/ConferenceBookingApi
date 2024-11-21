@@ -52,7 +52,7 @@ namespace ConferenceBookingAPI.Controllers
             return Ok(result);
         }
 
-        [Authorize(Roles = UserRoles.AdminRole + "," + UserRoles.SuperAdmin)]
+        [AllowAnonymous]
         [HttpGet("GetUserConferenceId")]
         public async Task<ActionResult<ApiResponse<int>>> GetUserConferenceId(string userId)
         {

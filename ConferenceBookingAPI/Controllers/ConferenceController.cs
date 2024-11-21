@@ -20,6 +20,7 @@ namespace ConferenceAPI.Controllers
         }
 
         #region Conference Controller
+        [Authorize(Roles = UserRoles.AdminRole + "," + UserRoles.SuperAdmin)]
         [HttpPost("AddOrUpdateConference")]
         public async Task<ActionResult<ApiResponse<string>>> AddOrUpdateConference(ConferenceDto dto)
         {
@@ -38,6 +39,7 @@ namespace ConferenceAPI.Controllers
         }
 
 
+        [Authorize(Roles = UserRoles.AdminRole + "," + UserRoles.SuperAdmin)]
         [HttpDelete("DeleteConference/{ID}")]
         public async Task<ActionResult<ApiResponse<string>>> DeleteConference(Guid ID)
         {
@@ -45,6 +47,7 @@ namespace ConferenceAPI.Controllers
             return Ok(result);
         }
         //[Authorize(Roles = UserRoles.AdminRole)]
+        [Authorize]
         [HttpGet("GetAllConference")]
         public async Task<ActionResult<ApiResponse<List<ConferenceDto>>>> GetAllConference()
         {
@@ -52,6 +55,7 @@ namespace ConferenceAPI.Controllers
             return Ok(result);
         }
 
+        [Authorize]
         [HttpGet("GetConferenceById/{ID}")]
         public async Task<ActionResult<ApiResponse<ConferenceDto>>> GetConferenceById(Guid ID)
         {

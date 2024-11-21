@@ -130,11 +130,11 @@ namespace ConferenceBookingAPI.Services
                         _updateBooking.ExtendedTime = dto.ExtendedTime ?? _updateBooking.ExtendedTime;
 
 
-                        if (dto.Status != null && dto.Status == "approved")
+                        if (dto.Status != null && (dto.Status == "approved" || dto.Status == "extended"))
                         {
                             var _conflictingBookings = await _context.Bookings
                                                                 .Where(b =>
-                                                                    b.BookedDate == dto.BookedDate && b.ConferenceId == dto.ConferenceId && b.BookingId != dto.BookingId && b.Status == dto.Status &&
+                                                                    b.BookedDate == dto.BookedDate && b.ConferenceId == dto.ConferenceId && b.BookingId != dto.BookingId && b.Status == "approved" &&
                                                                     (
                                                                        (b.BookingStart <= dto.BookingStart && b.BookingEnd >= dto.BookingStart) ||
                                                                        (b.BookingStart <= dto.BookingEnd && b.BookingEnd >= dto.BookingStart) ||

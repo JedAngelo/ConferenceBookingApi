@@ -3,6 +3,7 @@ using ConferenceBookingAPI.Models.Dto;
 using ConferenceBookingAPI.UserAuth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ConferenceBookingAPI.Controllers
@@ -18,6 +19,7 @@ namespace ConferenceBookingAPI.Controllers
             _authService = authService;
         }
 
+        [Authorize(Roles = UserRoles.SuperAdmin)]
         [HttpPost("RegisterSuperAdmin")]
         public async Task<ActionResult<ApiResponse<string>>> RegisterSuperAdminAsync([FromBody] RegisterModelDto param)
         {
@@ -25,7 +27,8 @@ namespace ConferenceBookingAPI.Controllers
             return Ok(result);
         }
 
-        //[Authorize(Roles = UserRoles.AdminRole)]
+        //[Authorize(Roles = UserRoles.AdminRole + "," + UserRoles.SuperAdmin)]
+        [Authorize(Roles = UserRoles.SuperAdmin)]
         [HttpPost("RegisterAdmin")]
         public async Task<ActionResult<ApiResponse<string>>> RegisterAdmin([FromBody] RegisterModelDto param)
         {
@@ -49,6 +52,7 @@ namespace ConferenceBookingAPI.Controllers
             return Ok(result);
         }
 
+        [Authorize(Roles = UserRoles.AdminRole + "," + UserRoles.SuperAdmin)]
         [HttpGet("GetUserConferenceId")]
         public async Task<ActionResult<ApiResponse<int>>> GetUserConferenceId(string userId)
         {
@@ -56,7 +60,7 @@ namespace ConferenceBookingAPI.Controllers
             return Ok(result);
         }
 
-        //[Authorize(Roles = UserRoles.AdminRole)]
+        [Authorize(Roles = UserRoles.AdminRole + "," + UserRoles.SuperAdmin)]
         [HttpGet("GetAdmins")]
         public async Task<ActionResult<ApiResponse<List<UsersDto>>>> GetAdminsAsync()
         {
@@ -64,6 +68,7 @@ namespace ConferenceBookingAPI.Controllers
             return Ok(result);
         }
 
+        [Authorize(Roles = UserRoles.AdminRole + "," + UserRoles.SuperAdmin)]
         [HttpGet("GetUsers")]
         public async Task<ActionResult<ApiResponse<List<UsersDto>>>> GetUsersAsync(string? role = null)
         {
@@ -71,6 +76,7 @@ namespace ConferenceBookingAPI.Controllers
             return Ok(result);
         }
 
+        [Authorize(Roles = UserRoles.SuperAdmin)]
         [HttpGet("RemoveUser/{userId}")]
         public async Task<ActionResult<ApiResponse<string>>> RemoveUserByIdAsync(string userId)
         {

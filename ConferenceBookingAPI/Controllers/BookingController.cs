@@ -1,6 +1,8 @@
 ﻿using ConferenceBookingAPI.Model.Dto;
+using ConferenceBookingAPI.Model.Dto.UserAuthDto;
 using ConferenceBookingAPI.Models.Dto;
 using ConferenceBookingAPI.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,7 +21,7 @@ namespace ConferenceBookingAPI.Controllers
 
 
         #region Booking Controller
-
+        [AllowAnonymous]
         [HttpPost("AddOrUpdateBooking")]
         public async Task<ActionResult<ApiResponse<string>>> AddOrUpdateBooking(BookingDto dto)
         {
@@ -27,6 +29,7 @@ namespace ConferenceBookingAPI.Controllers
             return Ok(result);
         }
 
+        [Authorize]
         [HttpDelete("DeleteBooking/{ID}")]
         public async Task<ActionResult<ApiResponse<string>>> DeleteBooking(Guid ID)
         {
@@ -34,6 +37,7 @@ namespace ConferenceBookingAPI.Controllers
             return Ok(result);
         }
 
+        [Authorize]
         [HttpGet("GetAllBooking")]
         public async Task<ActionResult<ApiResponse<List<ConferenceDto>>>> GetAllBooking()
         {
@@ -41,6 +45,7 @@ namespace ConferenceBookingAPI.Controllers
             return Ok(result);
         }
 
+        [Authorize]
         [HttpGet("GetBookingByBookingID/{ID}")]
         public async Task<ActionResult<ApiResponse<BookingDto>>> GetBookingById(Guid ID)
         {
@@ -48,6 +53,7 @@ namespace ConferenceBookingAPI.Controllers
             return Ok(result);
         }
 
+        [Authorize]
         [HttpGet("GetBookingByConferenceID/{ID}")]
         public async Task<ActionResult<List<ApiResponse<BookingDto>>>> GetBookingByConferenceId(Guid ID)
         {

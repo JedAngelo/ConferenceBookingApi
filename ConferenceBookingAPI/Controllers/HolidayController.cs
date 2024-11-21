@@ -1,6 +1,8 @@
 ﻿using ConferenceBookingAPI.Model.Dto;
+using ConferenceBookingAPI.Model.Dto.UserAuthDto;
 using ConferenceBookingAPI.Models.Dto;
 using ConferenceBookingAPI.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,6 +19,7 @@ namespace ConferenceBookingAPI.Controllers
             _holidayService = holidayService;
         }
 
+        [Authorize(Roles = UserRoles.AdminRole + "," + UserRoles.SuperAdmin)]
         [HttpPost("AddOrUpdateHoliday")]
         public async Task<ActionResult<ApiResponse<string>>> AddOrUpdateHolidays(HolidayDto dto)
         {
@@ -25,6 +28,7 @@ namespace ConferenceBookingAPI.Controllers
         }
 
 
+        [Authorize(Roles = UserRoles.AdminRole + "," + UserRoles.SuperAdmin)]
         [HttpDelete("DeleteHoliday/{ID}")]
         public async Task<ActionResult<ApiResponse<string>>> DeleteHoliday(Guid ID)
         {
@@ -33,6 +37,7 @@ namespace ConferenceBookingAPI.Controllers
         }
 
 
+        [Authorize(Roles = UserRoles.AdminRole + "," + UserRoles.SuperAdmin)]
         [HttpGet("GetAllHoliday")]
         public async Task<ActionResult<ApiResponse<List<HolidayDto>>>> GetAllHoliday()
         {
@@ -41,6 +46,7 @@ namespace ConferenceBookingAPI.Controllers
         }
 
 
+        [Authorize(Roles = UserRoles.AdminRole + "," + UserRoles.SuperAdmin)]
         [HttpGet("GetHolidayById/{ID}")]
         public async Task<ActionResult<ApiResponse<HolidayDto>>> GetHolidayById(Guid ID)
         {

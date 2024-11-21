@@ -37,7 +37,7 @@ namespace ConferenceBookingAPI.Controllers
             return Ok(result);
         }
 
-        [Authorize]
+        [AllowAnonymous]
         [HttpGet("GetAllBooking")]
         public async Task<ActionResult<ApiResponse<List<ConferenceDto>>>> GetAllBooking()
         {
@@ -45,7 +45,7 @@ namespace ConferenceBookingAPI.Controllers
             return Ok(result);
         }
 
-        [Authorize]
+        [AllowAnonymous]
         [HttpGet("GetBookingByBookingID/{ID}")]
         public async Task<ActionResult<ApiResponse<BookingDto>>> GetBookingById(Guid ID)
         {
@@ -53,7 +53,7 @@ namespace ConferenceBookingAPI.Controllers
             return Ok(result);
         }
 
-        [Authorize]
+        [AllowAnonymous]
         [HttpGet("GetBookingByConferenceID/{ID}")]
         public async Task<ActionResult<List<ApiResponse<BookingDto>>>> GetBookingByConferenceId(Guid ID)
         {

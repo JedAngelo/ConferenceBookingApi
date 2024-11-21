@@ -47,7 +47,7 @@ namespace ConferenceAPI.Controllers
             return Ok(result);
         }
         //[Authorize(Roles = UserRoles.AdminRole)]
-        [Authorize]
+        [AllowAnonymous]
         [HttpGet("GetAllConference")]
         public async Task<ActionResult<ApiResponse<List<ConferenceDto>>>> GetAllConference()
         {
@@ -55,7 +55,7 @@ namespace ConferenceAPI.Controllers
             return Ok(result);
         }
 
-        [Authorize]
+        [AllowAnonymous]
         [HttpGet("GetConferenceById/{ID}")]
         public async Task<ActionResult<ApiResponse<ConferenceDto>>> GetConferenceById(Guid ID)
         {

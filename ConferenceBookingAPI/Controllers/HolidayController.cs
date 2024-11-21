@@ -37,7 +37,7 @@ namespace ConferenceBookingAPI.Controllers
         }
 
 
-        [Authorize(Roles = UserRoles.AdminRole + "," + UserRoles.SuperAdmin)]
+        [AllowAnonymous]
         [HttpGet("GetAllHoliday")]
         public async Task<ActionResult<ApiResponse<List<HolidayDto>>>> GetAllHoliday()
         {
@@ -46,7 +46,7 @@ namespace ConferenceBookingAPI.Controllers
         }
 
 
-        [Authorize(Roles = UserRoles.AdminRole + "," + UserRoles.SuperAdmin)]
+        [AllowAnonymous]
         [HttpGet("GetHolidayById/{ID}")]
         public async Task<ActionResult<ApiResponse<HolidayDto>>> GetHolidayById(Guid ID)
         {

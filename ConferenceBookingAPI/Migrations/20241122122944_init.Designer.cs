@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ConferenceBookingAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241116061513_added extend")]
-    partial class addedextend
+    [Migration("20241122122944_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -63,6 +63,9 @@ namespace ConferenceBookingAPI.Migrations
 
                     b.Property<bool?>("Extended")
                         .HasColumnType("bit");
+
+                    b.Property<TimeOnly?>("ExtendedTime")
+                        .HasColumnType("time");
 
                     b.Property<string>("Organizer")
                         .HasColumnType("nvarchar(max)");

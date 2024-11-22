@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ConferenceBookingAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class addedholiday : Migration
+    public partial class init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -124,7 +124,9 @@ namespace ConferenceBookingAPI.Migrations
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     RecurringType = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     RecurringEndDate = table.Column<DateOnly>(type: "date", nullable: true),
-                    ConferenceId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    ConferenceId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Extended = table.Column<bool>(type: "bit", nullable: true),
+                    ExtendedTime = table.Column<TimeOnly>(type: "time", nullable: true)
                 },
                 constraints: table =>
                 {

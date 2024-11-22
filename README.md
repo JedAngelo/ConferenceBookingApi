@@ -1,2 +1,2 @@
 Use ApplicationDbContext only for migration or database update
-because conference id FK in application user
+because of conference id FK in application user
